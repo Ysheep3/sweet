@@ -1,0 +1,83 @@
+<view class="container">
+  <!-- 优化标签栏样式 -->
+  <view class="tabs">
+    <view 
+      class="tab-item {{activeTab === item.id ? 'active' : ''}}"
+      a:for="{{tabs}}"
+      a:key="id"
+      data-id="{{item.id}}"
+      onTap="switchTab"
+    >
+      {{item.name}}
+    </view>
+  </view>
+
+  <!-- 订单列表 -->
+  <scroll-view class="order-list" scroll-y>
+    <view 
+      class="order-item"
+      a:for="{{filteredOrders}}"
+      a:key="id"
+    >
+      <!-- 优化订单头部卡片样式 -->
+      <view class="order-header">
+        <view class="order-info">
+          <text class="order-id">订单号：{{item.id}}</text>
+          <text class="order-date">2024-01-15</text>
+        </view>
+        <text class="order-status {{item.status}}">
+          <block a:if="{{item.status === 'pending'}}">待支付</block>
+          <block a:elif="{{item.status === 'paid'}}">已支付</block>
+          <block a:elif="{{item.status === 'shipping'}}">派送中</block>
+          <block a:else>已完成</block>
+        </text>
+      </view>
+
+      <!-- 优化订单商品列表布局 -->
+      <view class="order-items">
+        <view class="order-product" a:for="{{item.items}}" a:key="id">
+          <image src="{{item.image}}" class="product-img" mode="aspectFill" />
+          <view class="product-details">
+            <view class="product-name">{{item.name}}</view>
+            <view class="product-meta">
+              <text class="product-quantity">x{{item.quantity}}</text>
+              <text class="product-price">¥{{item.price}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 优化订单底部信息和操作区 -->
+      <view class="order-footer">
+        <view class="order-summary">
+          <text class="order-total-label">合计：</text>
+          <text class="order-total-price">¥{{item.totalPrice}}</text>
+        </view>
+        <view class="order-actions">
+          <button 
+            class="action-btn btn-pay" 
+            size="mini"
+            a:if="{{item.status === 'pending'}}"
+            onTap="continuePay"
+            data-id="{{item.id}}"
+          >
+            继续支付
+          </button>
+          <button 
+            class="action-btn btn-urge" 
+            size="mini"
+            a:if="{{item.status === 'paid'}}"
+            onTap="urgeOrder"
+            data-id="{{item.id}}"
+          >
+            催单
+          </button>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-tip" a:if="{{filteredOrders.length === 0}}">
+      暂无订单
+    </view>
+  </scroll-view>
+</view>

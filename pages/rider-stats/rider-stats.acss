@@ -1,0 +1,104 @@
+page {
+  background-color: #faf8f5;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 20rpx 24rpx 40rpx;
+  box-sizing: border-box;
+}
+
+.header-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 18rpx 22rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  margin-bottom: 16rpx;
+}
+
+.header-card .title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.header-card .sub {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.stat-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.stat-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 18rpx 10rpx;
+  margin-right: 10rpx;
+  text-align: center;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.stat-card:last-child {
+  margin-right: 0;
+}
+
+.stat-card .label {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.stat-card .value {
+  margin-top: 4rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #d4745f;
+}
+
+.stat-card .unit {
+  font-size: 20rpx;
+  color: #aaa;
+}
+
+.section {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 18rpx 22rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  margin-bottom: 16rpx;
+}
+
+.section-title {
+  font-size: 26rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4rpx;
+}
+
+.row .label {
+  font-size: 24rpx;
+  color: #777;
+}
+
+.row .value {
+  font-size: 24rpx;
+  color: #333;
+}
+
+.tips {
+  font-size: 22rpx;
+  color: #999;
+  line-height: 1.6;
+}
+
+

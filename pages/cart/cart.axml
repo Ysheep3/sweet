@@ -1,0 +1,47 @@
+<view class="container">
+  <!-- 购物车列表 -->
+  <scroll-view class="cart-list" scroll-y>
+    <view 
+      class="cart-item"
+      a:for="{{cartItems}}"
+      a:key="id"
+    >
+      <view class="item-check" onTap="toggleItemSelect" data-id="{{item.id}}">
+        <view class="check-circle {{item.selected ? 'checked' : ''}}"></view>
+      </view>
+      <image src="{{item.image}}" class="item-image" mode="aspectFill" />
+      <view class="item-info">
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-footer">
+          <text class="item-price">¥{{item.price}}</text>
+          <view class="quantity-control">
+            <button class="quantity-btn" size="mini" onTap="decreaseQuantity" data-id="{{item.id}}">-</button>
+            <text class="quantity">{{item.quantity}}</text>
+            <button class="quantity-btn" size="mini" onTap="increaseQuantity" data-id="{{item.id}}">+</button>
+          </view>
+        </view>
+      </view>
+      <view class="item-delete" onTap="deleteItem" data-id="{{item.id}}">删除</view>
+    </view>
+    <view class="empty-tip" a:if="{{cartItems.length === 0}}">
+      购物车为空
+    </view>
+  </scroll-view>
+
+  <!-- 底部结算栏 -->
+  <view class="footer-bar">
+    <view class="footer-left">
+      <view class="item-check" onTap="toggleSelectAll">
+        <view class="check-circle {{isAllSelected ? 'checked' : ''}}"></view>
+      </view>
+      <text class="select-all-text">全选</text>
+    </view>
+    <view class="total">
+      <text>合计：</text>
+      <text class="total-price">¥{{totalPrice}}</text>
+    </view>
+    <button class="submit-btn" type="default" onTap="submitOrder">
+      <text style="color:#fff">去结算</text>
+    </button>
+  </view>
+</view>

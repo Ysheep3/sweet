@@ -1,0 +1,73 @@
+<view class="role-page">
+  <!-- Logo区域 -->
+  <view class="logo-area">
+    <view class="logo-wrapper">
+      <image src="/assets/image/index.png" class="logo" mode="aspectFit" />
+    </view>
+    <text class="title">欢迎来到糖水店</text>
+    <text class="subtitle">请选择您的身份进入</text>
+  </view>
+
+  <!-- 角色卡片 -->
+  <view class="role-cards">
+    <!-- 顾客卡片 -->
+    <view class="role-card customer-card">
+      <button
+        class="role-card-btn"
+        open-type="getAuthorize"
+        scope="userInfo"
+        onGetAuthorize="handleCustomerAuthorize"
+        onError="handleCustomerAuthError"
+      >
+        <view class="role-card-content">
+          <view class="role-icon-wrapper customer-icon">
+            <text class="role-icon">👤</text>
+          </view>
+          <view class="role-info">
+            <text class="role-name">我是顾客</text>
+            <text class="role-desc">使用支付宝账号一键授权登录</text>
+          </view>
+          <view class="role-arrow">→</view>
+        </view>
+      </button>
+    </view>
+
+    <!-- 骑手卡片 -->
+    <view class="role-card rider-card">
+      <view class="role-card-header">
+        <view class="role-icon-wrapper rider-icon">
+          <text class="role-icon">🛵</text>
+        </view>
+        <view class="role-info">
+          <text class="role-name">我是骑手</text>
+          <text class="role-desc">需验证店铺下发手机号后登录</text>
+        </view>
+      </view>
+
+      <view class="rider-form">
+        <view class="input-wrapper">
+          <input 
+            type="number"
+            maxlength="11"
+            placeholder="请输入店铺下发的手机号码"
+            value="{{riderPhone}}"
+            onInput="onRiderPhoneInput"
+            class="phone-input"
+            placeholder-class="input-placeholder"
+          />
+        </view>
+        <button 
+          class="btn-submit"
+          onTap="submitRiderLogin"
+        >
+          验证并登录
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部装饰 -->
+  <view class="footer-decoration">
+    <text class="footer-text">让每一碗糖水都充满温暖</text>
+  </view>
+</view>

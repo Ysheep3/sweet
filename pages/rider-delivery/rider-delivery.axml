@@ -1,0 +1,58 @@
+<view class="page">
+  <!-- 订单概要 -->
+  <view class="order-card">
+    <view class="row">
+      <text class="label">订单号</text>
+      <text class="value">#{{order.id}}</text>
+    </view>
+    <view class="row">
+      <text class="label">顾客</text>
+      <text class="value">{{order.customerName}} · {{order.customerPhone}}</text>
+    </view>
+    <view class="row">
+      <text class="label">送达地址</text>
+      <text class="value addr">{{order.customerAddress}}</text>
+    </view>
+    <view class="row">
+      <text class="label">订单金额</text>
+      <text class="value price">¥{{order.amount}}</text>
+    </view>
+  </view>
+
+  <!-- 高德地图容器（支付宝 map 组件，本质是高德底图） -->
+  <view class="section-title">配送路线（高德地图）</view>
+  <map
+    class="map"
+    id="deliveryMap"
+    longitude="{{mapCenter.longitude}}"
+    latitude="{{mapCenter.latitude}}"
+    scale="15"
+    markers="{{markers}}"
+    show-location="true"
+    include-points="{{includePoints}}"
+  />
+
+  <!-- 操作按钮 -->
+  <view class="btn-group">
+    <button
+      class="btn"
+      type="default"
+      onTap="startNavi"
+    >
+      使用高德导航
+    </button>
+    <button
+      class="btn primary"
+      type="primary"
+      onTap="markDelivered"
+    >
+      标记已送达
+    </button>
+  </view>
+
+  <view class="tips">
+    地图显示骑手当前位置和客户送达地址，点击"使用高德导航"可打开导航应用。
+  </view>
+</view>
+
+

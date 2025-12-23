@@ -1,0 +1,45 @@
+<view class="page">
+  <!-- 顶部统计 -->
+  <view class="summary-card">
+    <view class="summary-item">
+      <text class="summary-label">可用优惠券</text>
+      <text class="summary-value">{{availableCount}}</text>
+    </view>
+    <view class="summary-item">
+      <text class="summary-label">已使用 / 过期</text>
+      <text class="summary-value sub">{{usedCount}} / {{expiredCount}}</text>
+    </view>
+  </view>
+
+  <!-- 优惠券列表 -->
+  <scroll-view class="coupon-list" scroll-y>
+    <view
+      class="coupon-card {{item.status}}"
+      a:for="{{couponList}}"
+      a:key="id"
+      data-id="{{item.id}}"
+    >
+      <view class="left">
+        <text class="amount">
+          <text class="currency">¥</text>{{item.amount}}
+        </text>
+        <text class="condition">{{item.conditionText}}</text>
+      </view>
+      <view class="right">
+        <text class="title">{{item.title}}</text>
+        <text class="time">有效期：{{item.validTime}}</text>
+        <view class="tags">
+          <text class="tag" a:for="{{item.tags}}" a:key="*this">{{item}}</text>
+        </view>
+        <text class="status-text" a:if="{{item.status === 'used'}}">已使用</text>
+        <text class="status-text" a:if="{{item.status === 'expired'}}">已过期</text>
+      </view>
+    </view>
+
+    <view class="empty" a:if="{{couponList.length === 0}}">
+      暂无优惠券
+    </view>
+  </scroll-view>
+</view>
+
+

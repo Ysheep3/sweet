@@ -1,0 +1,61 @@
+<view class="container">
+  <!-- 搜索框样式优化 -->
+  <view class="search-bar">
+    <input 
+      type="text"
+      placeholder="搜索餐品" 
+      value="{{searchKeyword}}"
+      bindinput="onSearchInput"
+      bindconfirm="onSearchConfirm"
+      class="input"
+    />
+    <text a:if="{{searchKeyword}}" bindtap="clear" class="clear">×</text>
+  </view>
+
+  <view class="content">
+    <!-- 分类侧边栏 -->
+    <scroll-view class="category-sidebar" scroll-y>
+      <view 
+        class="category-item {{activeCategoryId === item.id ? 'active' : ''}}"
+        a:for="{{categories}}"
+        a:key="id"
+        data-id="{{item.id}}"
+        onTap="switchCategory"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
+
+    <!-- 商品列表 -->
+    <scroll-view class="product-list" scroll-y>
+      <view 
+        class="product-item"
+        a:for="{{filteredProducts}}"
+        a:key="id"
+        onTap="viewProductDetail"
+        data-id="{{item.id}}"
+      >
+        <image src="{{item.image}}" class="product-image" mode="aspectFill" />
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-desc">{{item.description}}</view>
+          <view class="product-footer">
+            <text class="product-price">¥{{item.price}}</text>
+            <button
+              class="add-btn"
+              size="mini"
+              type="primary"
+              catchTap="addToCart"
+              data-id="{{item.id}}"
+            >
+              加购
+            </button>
+          </view>
+        </view>
+      </view>
+      <view class="empty-tip" a:if="{{filteredProducts.length === 0}}">
+        暂无商品
+      </view>
+    </scroll-view>
+  </view>
+</view>

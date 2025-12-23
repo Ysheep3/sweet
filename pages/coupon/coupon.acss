@@ -1,0 +1,147 @@
+page {
+  background-color: #faf8f5;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.summary-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+  margin-bottom: 20rpx;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 6rpx;
+}
+
+.summary-value {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #d4745f;
+}
+
+.summary-value.sub {
+  color: #b0a297;
+}
+
+.coupon-list {
+  height: calc(100vh - 200rpx);
+}
+
+.coupon-card {
+  display: flex;
+  background: #fff;
+  border-radius: 18rpx;
+  margin-bottom: 18rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.coupon-card .left {
+  width: 220rpx;
+  background: linear-gradient(135deg, #d4745f, #e8987f);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.amount {
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.currency {
+  font-size: 26rpx;
+  margin-right: 4rpx;
+}
+
+.condition {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  opacity: 0.9;
+}
+
+.coupon-card .right {
+  flex: 1;
+  padding: 18rpx 22rpx;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.time {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 10rpx;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.tag {
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  background: #fff3e8;
+  color: #d4745f;
+}
+
+.status-text {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #b0a297;
+}
+
+.coupon-card.used .left,
+.coupon-card.expired .left {
+  background: #ddd;
+}
+
+.coupon-card.used .tag,
+.coupon-card.expired .tag {
+  background: #f3f3f3;
+  color: #aaa;
+}
+
+.coupon-card.used .amount,
+.coupon-card.expired .amount,
+.coupon-card.used .condition,
+.coupon-card.expired .condition {
+  opacity: 0.7;
+}
+
+.empty {
+  text-align: center;
+  margin-top: 60rpx;
+  color: #bbb;
+  font-size: 26rpx;
+}
+
+
