@@ -28,7 +28,7 @@ Page({
   // 添加地址
   addAddress() {
     my.navigateTo({
-      url: "/pages/addAddress/addAddress",
+      url: "/pages/add-address/add-address",
     })
   },
 
@@ -36,7 +36,8 @@ Page({
   editAddress(e) {
     const id = e.currentTarget.dataset.id
     my.navigateTo({
-      url: `/pages/address-edit/address-edit?id=${id}`,
+      // 复用添加地址页面，在其中通过 query.id 进入编辑模式
+      url: `/pages/add-address/add-address?id=${id}`,
     })
   },
 

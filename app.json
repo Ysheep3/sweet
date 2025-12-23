@@ -12,7 +12,7 @@
     "pages/profile/profile",
     "pages/order/order",
     "pages/address/address",
-    "pages/addAddress/addAddress",
+    "pages/add-address/add-address",
     "pages/favorites/favorites"
   ],
   "window": {
