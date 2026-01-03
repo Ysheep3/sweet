@@ -8,7 +8,7 @@ Page({
 
   onLoad() {
     this.loadCategories();
-    this.loadProducts(0);  // 0表示全部
+    this.loadProducts(0); // 0表示全部
     this.updateTabBarBadge();
   },
 
@@ -31,7 +31,9 @@ Page({
             sort: item.sort,
             status: item.status
           }));
-          this.setData({ categories });
+          this.setData({
+            categories
+          });
         }
       },
       fail: (error) => {
@@ -49,23 +51,29 @@ Page({
     const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
 
     my.request({
-      url: `${apiBaseUrl}items/user/dish/list`,
-      data: {'categoryId': categoryId},
+      url: `${apiBaseUrl}items/user/dish/all`,
+      data: {
+        'categoryId': categoryId
+      },
       method: 'GET',
       success: (res) => {
         if (res.data && res.data.code === 1) {
           const Dish = require('../../models/Dish');
           const products = res.data.data.map(item => Dish.fromApi(item));
-          this.setData({ products });
+          this.setData({
+            products
+          });
         } else {
-          this.setData({ products: [] });
+          this.setData({
+            products: []
+          });
         }
       },
       fail: (error) => {
         my.showToast({
-            type: 'fail',
-            content: res.data.msg
-          })
+          type: 'fail',
+          content: res.data.msg
+        })
       }
     });
   },
@@ -74,7 +82,7 @@ Page({
   switchCategory(e) {
     const categoryId = e.currentTarget.dataset.id;
     const type = e.currentTarget.dataset.type;
-    
+
     // 更新选中状态
     this.setData({
       activeCategoryId: categoryId,
@@ -95,18 +103,24 @@ Page({
   loadDishes(categoryId) {
     const app = getApp();
     const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
-    
+
     my.request({
       url: `${apiBaseUrl}items/user/dish/list`,
-      data: {'categoryId': categoryId},
+      data: {
+        'categoryId': categoryId
+      },
       method: 'GET',
       success: (res) => {
         if (res.data && res.data.code === 1) {
           const Dish = require('../../models/Dish');
           const products = res.data.data.map(item => Dish.fromApi(item));
-          this.setData({ products });
+          this.setData({
+            products
+          });
         } else {
-          this.setData({ products: [] });
+          this.setData({
+            products: []
+          });
         }
       },
       fail: (error) => {
@@ -122,16 +136,20 @@ Page({
   loadSetmeals(categoryId) {
     const app = getApp();
     const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
-    
+
     my.request({
       url: `${apiBaseUrl}items/user/setmeal/list`,
-      data: {'categoryId': categoryId},
+      data: {
+        'categoryId': categoryId
+      },
       method: 'GET',
       success: (res) => {
         if (res.data && res.data.code === 1) {
           const Setmeal = require('../../models/Setmeal');
           const products = res.data.data.map(item => Setmeal.fromApi(item));
-          this.setData({ products });
+          this.setData({
+            products
+          });
         }
       },
       fail: (error) => {
@@ -144,44 +162,58 @@ Page({
   },
 
   // 搜索输入
-  onSearchInput(e) {
+  onSearchConfirm(e) {
     const keyword = e.detail.value;
-    this.setData({ searchKeyword: keyword });
-    
-    // 如果有搜索词，前端过滤当前产品
+    console.log('搜索词：', keyword);
+    this.setData({
+      searchKeyword: keyword
+    });
+    const app = getApp();
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
+
     if (keyword.trim()) {
-      this.filterProductsByKeyword(keyword);
+      my.request({
+        url: `${apiBaseUrl}items/user/dish/search`,
+        method: 'GET',
+        data: {
+          keyword: keyword
+        },
+        success: (res) => {
+          if (res.data && res.data.code === 1) {
+            const Dish = require('../../models/Dish');
+            const products = res.data.data.map(item => Dish.fromApi(item));
+            this.setData({
+              products
+            });
+          } else {
+            this.setData({
+              products: []
+            });
+          }
+        },
+        fail: () => {
+          my.showToast({
+            type: 'fail',
+            content: res.data.msg
+          });
+        },
+      });
     }
   },
 
-  // 按关键词过滤产品（前端过滤）
-  filterProductsByKeyword(keyword) {
-    const { products } = this.data;
-    const searchKey = keyword.toLowerCase();
-    
-    const filtered = products.filter(item =>
-      item.name.toLowerCase().includes(searchKey) ||
-      (item.description && item.description.toLowerCase().includes(searchKey))
-    );
-    
-    this.setData({ products: filtered });
-  },
-
+  
   // 清空搜索
   clearSearch() {
-    const { activeCategoryId } = this.data;
-    
-    this.setData({ searchKeyword: '' });
-    
-    // 重新加载当前分类的数据
-    const currentCategory = this.data.categories.find(cat => cat.id === activeCategoryId);
-    if (currentCategory) {
-      if (currentCategory.type === 1) {
-        this.loadDishes(activeCategoryId);
-      } else if (currentCategory.type === 2) {
-        this.loadSetmeals(activeCategoryId);
-      }
-    }
+    const {
+      activeCategoryId
+    } = this.data;
+
+    this.setData({
+      activeCategoryId: 0,
+      searchKeyword: ''
+    });
+
+    this.loadProducts(0);
   },
 
   // 查看商品详情
@@ -199,10 +231,6 @@ Page({
 
     if (!product) return;
 
-    // 从本地存储获取购物车
-    let cart = my.getStorageSync({
-      key: 'cart'
-    }).data || [];
 
     // 检查商品是否已在购物车
     const existingItem = cart.find(item => item.id === productId);
@@ -216,11 +244,6 @@ Page({
       });
     }
 
-    // 保存购物车
-    my.setStorageSync({
-      key: 'cart',
-      data: cart
-    });
 
     this.updateTabBarBadge();
 

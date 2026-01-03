@@ -5,10 +5,10 @@
       type="text"
       placeholder="搜索餐品" 
       value="{{searchKeyword}}"
-      bindinput="onSearchInput"
+      onConfirm="onSearchConfirm"
       class="input"
     />
-    <text a:if="{{searchKeyword}}" bindtap="clearSearch" class="clear">×</text>
+    <text a:if="{{searchKeyword}}" onTap="clearSearch" class="clear">×</text>
   </view>
 
   <view class="content">

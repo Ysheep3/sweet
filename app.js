@@ -1,7 +1,7 @@
 App({
   // API 基础地址配置
   globalData: {
-    apiBaseUrl: 'http://localhost:8080/' // TODO: 替换为实际的后端API地址
+    apiBaseUrl: 'http://172.20.10.2:8080/' // TODO: 替换为实际的后端API地址
   },
 
   // 可选：全局获取/设置角色（已移除本地存储）
