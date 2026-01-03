@@ -10,7 +10,7 @@
       {{userInfo.nickname}}
     </text>
     <text class="user-status">
-      {{userInfo.isLoggedIn ? (userInfo.role === 'rider' ? '骑手' : '顾客') + ' 已登录' : '未登录'}}
+      {{userInfo.isLoggedIn ? '顾客' + ' 已登录' : '未登录'}}
     </text>
   </view>
 </view>

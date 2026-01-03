@@ -1,11 +1,13 @@
 const ALLOWED_RIDER_PHONES = ["18924625116", "13900000001"]
+const User = require('../../models/User')
+const Employee = require('../../models/Employee')
 
 Page({
   data: {
     riderPhone: "",
   },
 
-  // 顾客授权成功回调（由 button 直接触发）
+  // 顾客授权成功回调（由 button open-type="getAuthorize" 触发）
   handleCustomerAuthorize(e) {
     my.showToast({
       content: "授权回调已触发",
@@ -23,11 +25,8 @@ Page({
       return
     }
 
-    // 记录角色为顾客
-    getApp().setUserRole && getApp().setUserRole("customer")
-
-    // 授权通过，获取用户信息并进入首页
-    this.fetchUserInfoAndEnterApp("customer")
+    // 直接获取授权码并登录（顾客专用）
+    this.fetchAuthCodeAndLogin('customer')
   },
 
   handleCustomerAuthError(e) {
@@ -45,7 +44,7 @@ Page({
     })
   },
 
-  // 骑手登录：先校验手机号，再获取支付宝信息
+  // 骑手登录：先校验手机号，再获取授权码登录
   submitRiderLogin() {
     const phone = (this.data.riderPhone || "").trim()
     if (!phone || phone.length !== 11) {
@@ -65,76 +64,109 @@ Page({
     }
 
     console.log("骑手手机号校验通过:", phone)
-    getApp().setUserRole && getApp().setUserRole("rider")
 
-    this.fetchUserInfoAndEnterApp("rider", phone)
+    // 校验通过后，获取授权码并登录（带手机号）
+    this.fetchAuthCodeAndLogin('rider', phone)
   },
 
-  // 公共：获取支付宝用户信息并进入应用
-  fetchUserInfoAndEnterApp(role, riderPhone) {
-    my.getOpenUserInfo({
+  // 公共：获取支付宝授权码并发送到后端
+  fetchAuthCodeAndLogin(role, riderPhone) {
+    my.getAuthCode({
+      scopes: ['auth_user'], // 需要用户信息授权
       success: (res) => {
-        try {
-          console.log("getOpenUserInfo 返回:", res)
-
-          let userInfo
-          if (typeof res.response === "string") {
-            const parsed = JSON.parse(res.response)
-            userInfo = parsed.response || parsed
-          } else {
-            userInfo = res.response
-          }
-
-          if (!userInfo) {
-            my.showToast({
-              content: "获取用户信息失败，数据为空",
-              type: "fail",
-            })
-            return
-          }
-
-          const nickname = userInfo.nickName || userInfo.nickname || userInfo.nick_name || "支付宝用户"
-          const avatar = userInfo.avatar || userInfo.avatarUrl || "/image/default-avatar.png"
-
-          const userData = {
-            avatar,
-            nickname,
-            userId: userInfo.userId || userInfo.user_id || "",
-            userType: userInfo.userType || userInfo.user_type || "",
-            isLoggedIn: true,
-            role,
-            riderPhone: riderPhone || null,
-            authTime: Date.now(),
-          }
-
-          my.setStorageSync({
-            key: "userInfo",
-            data: userData,
-          })
-          getApp().setUserRole && getApp().setUserRole(role)
-
+        console.log("getAuthCode 返回:", res)
+        
+        if (!res.authCode) {
           my.showToast({
-            content: (role === "customer" ? "顾客" : "骑手") + "登录成功",
-            type: "success",
-          })
-
-          // 不同角色进入不同首页
-          my.reLaunch({
-            url: role === "rider" ? "/pages/rider-home/rider-home" : "/pages/index/index",
-          })
-        } catch (err) {
-          console.error("解析用户信息失败:", err)
-          my.showToast({
-            content: "解析用户信息失败，请重试",
+            content: "获取授权码失败",
             type: "fail",
+          })
+          return
+        }
+
+        // 发送到对应后端接口
+        this.sendLoginRequest(role, {
+          authCode: res.authCode,
+          riderPhone: riderPhone || null,
+        })
+      },
+      fail: (err) => {
+        console.error("getAuthCode 调用失败:", err)
+        my.showToast({
+          content: "获取授权码失败，请重试",
+          type: "fail",
+        })
+      },
+    })
+  },
+
+  // 发送登录请求到后端
+  sendLoginRequest(role, userInfo) {
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
+
+    let loginData = {}
+    let apiUrl = ''
+
+    if (role === 'customer') {
+      // 顾客登录
+      loginData = { code: userInfo.authCode }
+      apiUrl = `${apiBaseUrl}user/login`
+    } else {
+      // 骑手登录
+      loginData = {
+        code: userInfo.authCode,
+        phone: userInfo.riderPhone,
+      }
+      apiUrl = `${apiBaseUrl}employee/rider/login`
+    }
+
+    my.showLoading({
+      content: '登录中...',
+    })
+
+    my.request({
+      url: apiUrl,
+      method: 'POST',
+      data: loginData,
+      headers: { 'Content-Type': 'application/json' },
+      dataType: 'json',
+      success: (res) => {
+        my.hideLoading()
+        console.log('登录API响应:', res)
+
+        if (res.statusCode === 200 && res.data) {
+          const app = getApp();
+          if (role === 'customer') {
+            app.globalData.userInfo = User.fromApi(res.data.data)
+            console.log("用户token：", res.data.data.token)
+            app.globalData.authentication = res.data.data.token
+          } else {
+            app.globalData.riderInfo = Employee.fromApi(res.data.data)
+          }
+
+          my.showToast({
+            content: (role === 'customer' ? '顾客' : '骑手') + '登录成功',
+            type: 'success',
+          })
+
+          // 跳转对应首页
+          my.reLaunch({
+            url: role === 'rider' ? '/pages/rider-home/rider-home' : '/pages/index/index',
+          })
+        } else {
+          my.showToast({
+            content: res.data.message || '登录失败，请重试',
+            type: 'fail',
           })
         }
       },
       fail: (err) => {
-        console.error("getOpenUserInfo 调用失败:", err)
+        my.hideLoading()
+        console.error('登录请求失败:', err)
         my.showToast({
-          content: "获取支付宝用户信息失败，请重试",
-          type: "fail",
+          content: '登录失败，请检查网络连接后重试',
+          type: 'fail',
         })
       },
     })

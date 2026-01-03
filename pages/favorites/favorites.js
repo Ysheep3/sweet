@@ -19,25 +19,71 @@ Page({
     this.loadFavorites()
   },
 
-  // 加载用户信息
+  // 从后端API获取用户信息
   loadUserInfo() {
-    const userInfo = my.getStorageSync({ key: "userInfo" }).data
-    if (userInfo && userInfo.isLoggedIn) {
-      this.setData({
-        userInfo: {
-          ...userInfo,
-          isLoggedIn: true,
-        },
-      })
-    } else {
+    const app = getApp();
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8081/';
+    const role = app.getUserRole && app.getUserRole();
+    
+    // 根据角色从不同的API获取用户信息
+    if (!role) {
+      // 未登录状态
       this.setData({
         userInfo: {
           avatar: "/image/default-avatar.png",
           nickname: "点击登录",
           isLoggedIn: false,
         },
-      })
+      });
+      return;
     }
+    
+    // TODO: 从后端API获取当前登录用户信息
+    // 示例：
+    // const apiUrl = role === 'customer' 
+    //   ? `${apiBaseUrl}user/current` 
+    //   : `${apiBaseUrl}employee/current`;
+    // 
+    // my.request({
+    //   url: apiUrl,
+    //   method: 'GET',
+    //   success: (res) => {
+    //     if (res.statusCode === 200 && res.data) {
+    //       const User = require('../../models/User');
+    //       const Employee = require('../../models/Employee');
+    //       const userData = role === 'customer' 
+    //         ? User.fromApi(res.data)
+    //         : Employee.fromApi(res.data);
+    //       
+    //       this.setData({
+    //         userInfo: {
+    //           avatar: userData.avatar || "/image/default-avatar.png",
+    //           nickname: userData.nickname || userData.name || "用户",
+    //           isLoggedIn: true,
+    //         }
+    //       });
+    //     }
+    //   },
+    //   fail: (err) => {
+    //     console.error('获取用户信息失败:', err);
+    //     this.setData({
+    //       userInfo: {
+    //         avatar: "/image/default-avatar.png",
+    //         nickname: "点击登录",
+    //         isLoggedIn: false,
+    //       }
+    //     });
+    //   }
+    // });
+    
+    // 临时：根据角色显示默认信息
+    this.setData({
+      userInfo: {
+        avatar: "/image/default-avatar.png",
+        nickname: role === 'customer' ? '顾客' : '骑手',
+        isLoggedIn: true,
+      },
+    });
   },
 
   // 加载收藏列表
@@ -140,14 +186,21 @@ Page({
       cancelButtonText: "取消",
       success: (res) => {
         if (res.confirm) {
-          my.setStorageSync({
-            key: "userInfo",
-            data: {
-              avatar: "/image/default-avatar.png",
-              nickname: "点击登录",
-              isLoggedIn: false,
-            },
-          })
+          // 清除全局角色信息
+          const app = getApp();
+          if (app.globalData) {
+            app.globalData.currentRole = null;
+          }
+
+          // TODO: 调用后端退出登录接口
+          // const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8081/';
+          // my.request({
+          //   url: `${apiBaseUrl}logout`,
+          //   method: 'POST',
+          //   success: () => {
+          //     console.log('退出登录成功');
+          //   }
+          // });
 
           this.setData({
             userInfo: {
@@ -162,6 +215,11 @@ Page({
             type: "success",
             duration: 1500,
           })
+          
+          // 跳转到角色选择页面
+          my.reLaunch({
+            url: '/pages/role-select/roleSelect'
+          });
         }
       },
     })

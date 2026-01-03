@@ -1,32 +1,19 @@
-// ... 现有代码开头 ...
 App({
-  onLaunch(options) {
-    console.info('App onLaunch');
-    // 只做初始化工作，不再在这里发起用户授权
-    // this.updateTabBarBadge();
+  // API 基础地址配置
+  globalData: {
+    apiBaseUrl: 'http://localhost:8080/' // TODO: 替换为实际的后端API地址
   },
 
-  onShow(options) {
-    // 从后台回来，只更新购物车徽章
-    //this.updateTabBarBadge();
-  },
-
-  // 全局获取用户信息方法（保持不变）
-  getUserInfo() {
-    return my.getStorageSync({ key: 'userInfo' }).data;
-  },
-
-  // 可选：全局获取/设置角色
+  // 可选：全局获取/设置角色（已移除本地存储）
   setUserRole(role) {
     // role: 'customer' | 'rider'
-    my.setStorageSync({
-      key: 'userRole',
-      data: role
-    });
+    // 不再存储角色信息
+    this.globalData.currentRole = role;
   },
 
   getUserRole() {
-    return my.getStorageSync({ key: 'userRole' }).data;
+    // 不再从本地存储读取
+    return this.globalData.currentRole || null;
   },
 
   // 更新底部导航栏购物车徽章和图标（保留你原来的实现）

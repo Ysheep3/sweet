@@ -18,61 +18,76 @@ Page({
   },
 
   loadRiderInfo() {
-    const userInfo = my.getStorageSync({ key: 'userInfo' }).data || {};
+    // 从后端API获取骑手信息
+    const app = getApp();
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8081/';
+    
+    // TODO: 从后端API获取当前登录的骑手信息
+    // 示例：
+    // my.request({
+    //   url: `${apiBaseUrl}employee/current`,
+    //   method: 'GET',
+    //   success: (res) => {
+    //     if (res.statusCode === 200 && res.data) {
+    //       const Employee = require('../../models/Employee');
+    //       const employee = Employee.fromApi(res.data);
+    //       this.setData({
+    //         riderInfo: {
+    //           id: employee.id,
+    //           name: employee.name,
+    //           phone: employee.phone,
+    //           avatar: employee.avatar,
+    //           role: employee.role
+    //         }
+    //       });
+    //     }
+    //   },
+    //   fail: (err) => {
+    //     console.error('获取骑手信息失败:', err);
+    //     // 如果获取失败，可能需要重新登录
+    //     my.reLaunch({
+    //       url: '/pages/role-select/roleSelect'
+    //     });
+    //   }
+    // });
+    
+    // 临时：设置为空对象
     this.setData({
-      riderInfo: userInfo
+      riderInfo: {}
     });
   },
 
-  // 模拟从服务端加载骑手订单数据
+  // 从服务端加载骑手订单数据
   loadOrders() {
-    // 先从本地缓存读取，如无则初始化一些示例数据
-    let orders = my.getStorageSync({ key: 'riderOrders' }).data;
-    if (!orders || !orders.length) {
-      orders = [
-        {
-          id: 'D' + Date.now(),
-          status: 'pending', // pending 待接单, accepted 已接单, delivering 配送中, finished 已完成
-          statusText: '待接单',
-          customerName: '张三',
-          customerPhone: '13800001234',
-          customerAddress: '广州软件学院',
-          amount: 36.5,
-          createTime: '12:20',
-          customerLocation: { latitude: 23.12908, longitude: 113.26436 }
-        },
-        {
-          id: 'D20250101002',
-          status: 'delivering',
-          statusText: '配送中',
-          customerName: '李四',
-          customerPhone: '13900004567',
-          customerAddress: '广州软件学院',
-          amount: 52.0,
-          createTime: '12:05',
-          customerLocation: { latitude: 23.457069, longitude: 113.501476 }
-        },
-        {
-          id: 'D20250101001',
-          status: 'finished',
-          statusText: '已完成',
-          customerName: '王五',
-          customerPhone: '13700007890',
-          customerAddress: 'ZZ园 8栋 1203',
-          amount: 48.8,
-          createTime: '11:40',
-          customerLocation: { latitude: 23.127, longitude: 113.2605 }
-        }
-      ];
-      my.setStorageSync({ key: 'riderOrders', data: orders });
-    }
-
-    const todayFinished = orders.filter(o => o.status === 'finished').length;
+    // TODO: 从后端API获取骑手订单数据
+    // 示例：
+    // my.request({
+    //   url: 'https://your-api.com/api/order/rider/list',
+    //   method: 'GET',
+    //   data: {
+    //     employeeId: this.data.riderInfo.id,
+    //     status: this.data.activeTab
+    //   },
+    //   success: (res) => {
+    //     const Order = require('../../models/Order');
+    //     const orders = res.data.map(item => Order.fromApi(item));
+    //     const todayFinished = orders.filter(o => o.status === 4).length;
+    //     this.setData(
+    //       {
+    //         orders,
+    //         todayFinished
+    //       },
+    //       () => {
+    //         this.filterOrders();
+    //       }
+    //     );
+    //   }
+    // });
 
     this.setData(
       {
-        orders,
-        todayFinished
+        orders: [],
+        todayFinished: 0
       },
       () => {
         this.filterOrders();

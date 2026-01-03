@@ -1,10 +1,11 @@
+const { userInfo } = require("os");
+
 Page({
   data: {
     userInfo: {
       avatar: '/image/default-avatar.png',
       nickname: '点击登录',
       isLoggedIn: false,
-      role: null
     },
     favorites: []
   },
@@ -15,6 +16,7 @@ Page({
   },
 
   onShow() {
+    // 每次页面显示时刷新一下（防止从其他页面回来数据没更新）
     this.loadUserInfo();
     this.loadFavorites();
   },
@@ -24,28 +26,83 @@ Page({
     this.setData({ favorites: favorites.slice(0, 3) });
   },
 
-  // 只从 storage 读取登录信息
+  // 从后端API获取用户信息
   loadUserInfo() {
-    const userInfo = my.getStorageSync({ key: 'userInfo' }).data;
-    if (userInfo && userInfo.isLoggedIn) {
-      this.setData({
-        userInfo: {
-          avatar: userInfo.avatar,
-          nickname: userInfo.nickname,
-          isLoggedIn: true,
-          role: userInfo.role || 'customer'
-        }
-      });
-    } else {
-      this.setData({
-        userInfo: {
-          avatar: '/image/default-avatar.png',
-          nickname: '点击登录',
-          isLoggedIn: false,
-          role: null
-        }
-      });
+    const app = getApp();
+    if (app.globalData.userInfo) {
+      const userInfoData = app.globalData.userInfo
+      this.setData({ userInfo: {
+        avatar: userInfoData.avatar,
+        nickname: userInfoData.nickname,
+        isLoggedIn: true,
+      } });  // 直接用
+      // console.log("用户信息：", userInfoData)
     }
+    
+    // 根据角色从不同的API获取用户信息
+    // if (!role) {
+    //   // 未登录状态
+    //   this.setData({
+    //     userInfo: {
+    //       avatar: '/image/default-avatar.png',
+    //       nickname: '点击登录',
+    //       isLoggedIn: false,
+    //       role: null
+    //     }
+    //   });
+    //   return;
+    // }
+    
+    // TODO: 从后端API获取当前登录用户信息
+    // 示例：
+    // const apiUrl = role === 'customer' 
+    //   ? `${apiBaseUrl}user/current` 
+    //   : `${apiBaseUrl}employee/current`;
+    // 
+    // my.request({
+    //   url: apiUrl,
+    //   method: 'GET',
+    //   success: (res) => {
+    //     if (res.statusCode === 200 && res.data) {
+    //       const User = require('../../models/User');
+    //       const Employee = require('../../models/Employee');
+    //       const userData = role === 'customer' 
+    //         ? User.fromApi(res.data)
+    //         : Employee.fromApi(res.data);
+    //       
+    //       this.setData({
+    //         userInfo: {
+    //           avatar: userData.avatar || '/image/default-avatar.png',
+    //           nickname: userData.nickname || userData.name || '用户',
+    //           isLoggedIn: true,
+    //           role: role
+    //         }
+    //       });
+    //     }
+    //   },
+    //   fail: (err) => {
+    //     console.error('获取用户信息失败:', err);
+    //     // 获取失败，显示未登录状态
+    //     this.setData({
+    //       userInfo: {
+    //         avatar: '/image/default-avatar.png',
+    //         nickname: '点击登录',
+    //         isLoggedIn: false,
+    //         role: null
+    //       }
+    //     });
+    //   }
+    // });
+    
+    // 临时：根据角色显示默认信息
+    // this.setData({
+    //   userInfo: {
+    //     avatar: '/image/default-avatar.png',
+    //     nickname: role === 'customer' ? '顾客' : '骑手',
+    //     isLoggedIn: true,
+    //     role: role
+    //   }
+    // });
   },
  
   // 跳转到角色选择（重新登录 / 切换角色）
@@ -64,17 +121,21 @@ Page({
       cancelButtonText: '取消',
       success: (res) => {
         if (res.confirm) {
-          my.removeStorageSync({ key: 'userInfo' });
-          my.removeStorageSync({ key: 'userRole' });
+          // 清除全局角色信息
+          const app = getApp();
+          if (app.globalData) {
+            app.globalData.userInfo = null;
+          }
 
-          this.setData({
-            userInfo: {
-              avatar: '/image/default-avatar.png',
-              nickname: '点击登录',
-              isLoggedIn: false,
-              role: null
-            }
-          });
+          // TODO: 调用后端退出登录接口
+          // const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8081/';
+          // my.request({
+          //   url: `${apiBaseUrl}logout`,
+          //   method: 'POST',
+          //   success: () => {
+          //     console.log('退出登录成功');
+          //   }
+          // });
 
           my.reLaunch({
             url: '/pages/role-select/roleSelect'

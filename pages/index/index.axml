@@ -6,10 +6,9 @@
       placeholder="搜索餐品" 
       value="{{searchKeyword}}"
       bindinput="onSearchInput"
-      bindconfirm="onSearchConfirm"
       class="input"
     />
-    <text a:if="{{searchKeyword}}" bindtap="clear" class="clear">×</text>
+    <text a:if="{{searchKeyword}}" bindtap="clearSearch" class="clear">×</text>
   </view>
 
   <view class="content">
@@ -20,6 +19,7 @@
         a:for="{{categories}}"
         a:key="id"
         data-id="{{item.id}}"
+        data-type="{{item.type}}"
         onTap="switchCategory"
       >
         {{item.name}}
@@ -30,7 +30,7 @@
     <scroll-view class="product-list" scroll-y>
       <view 
         class="product-item"
-        a:for="{{filteredProducts}}"
+        a:for="{{products}}"
         a:key="id"
         onTap="viewProductDetail"
         data-id="{{item.id}}"
@@ -53,8 +53,8 @@
           </view>
         </view>
       </view>
-      <view class="empty-tip" a:if="{{filteredProducts.length === 0}}">
-        暂无商品
+      <view class="empty-tip" a:if="{{products.length === 0}}">
+        {{searchKeyword ? '未找到相关商品' : '暂无商品'}}
       </view>
     </scroll-view>
   </view>
