@@ -8,38 +8,75 @@ Page({
 
   onLoad(query) {
     const id = Number(query.id || 0);
+    const type = Number(query.type || 1); // 1表示菜品，2表示套餐
+    
     if (!id) {
       my.showToast({ content: '商品不存在', type: 'fail' });
       return;
     }
-    this.initProduct(id);
+    
+    this.initProduct(id, type);
   },
 
   // 初始化商品数据
-  initProduct(id) {
-    // TODO: 从后端API获取商品详情数据
-    // 示例：
-    // my.request({
-    //   url: `https://your-api.com/api/dish/${id}`,
-    //   method: 'GET',
-    //   success: (res) => {
-    //     const Dish = require('../../models/Dish');
-    //     const product = Dish.fromApi(res.data);
-    //     const favorites = my.getStorageSync({ key: 'favorites' }).data || [];
-    //     const isFavorite = favorites.some(item => item.id === id);
-    //     this.setData({
-    //       product,
-    //       sweet: product.sweetOptions ? product.sweetOptions[0] : '',
-    //       temperature: product.tempOptions ? product.tempOptions[0] : '',
-    //       isFavorite
-    //     });
-    //   },
-    //   fail: () => {
-    //     my.showToast({ content: '商品不存在', type: 'fail' });
-    //   }
-    // });
+  initProduct(id, type) {
+    const app = getApp();
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/';
     
-    my.showToast({ content: '商品不存在', type: 'fail' });
+    // 根据type判断是菜品还是套餐
+    let url = '';
+    let Model = null;
+    
+    if (type === 2) {
+      // 套餐
+      url = `${apiBaseUrl}items/user/setmeal/${id}`;
+      Model = require('../../models/Setmeal');
+    } else {
+      // 菜品（默认为1）
+      url = `${apiBaseUrl}items/user/dish/${id}`;
+      Model = require('../../models/Dish');
+    }
+    
+    my.request({
+      url: url,
+      method: 'GET',
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          const product = Model.fromApi(res.data.data);
+          
+          // 获取收藏列表
+          const favorites = my.getStorageSync({ key: 'favorites' }).data || [];
+          const isFavorite = favorites.some(item => item.id === id);
+          
+          // 设置默认的甜度和温度（如果存在）
+          const sweet = product.sweetOptions && product.sweetOptions.length > 0 
+            ? product.sweetOptions[0] 
+            : '';
+          const temperature = product.tempOptions && product.tempOptions.length > 0 
+            ? product.tempOptions[0] 
+            : '';
+          
+          this.setData({
+            product,
+            sweet,
+            temperature,
+            isFavorite
+          });
+        } else {
+          my.showToast({ 
+            content: res.data.msg || '商品不存在', 
+            type: 'fail' 
+          });
+        }
+      },
+      fail: (error) => {
+        console.error('获取商品详情失败:', error);
+        my.showToast({ 
+          content: '获取商品详情失败', 
+          type: 'fail' 
+        });
+      }
+    });
   },
 
   onSweetChange(e) {

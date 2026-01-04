@@ -34,6 +34,7 @@
         a:key="id"
         onTap="viewProductDetail"
         data-id="{{item.id}}"
+        data-type="{{item.type}}"
       >
         <image src="{{item.image}}" class="product-image" mode="aspectFill" />
         <view class="product-info">

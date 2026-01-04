@@ -11,6 +11,7 @@ class SetMeal {
     this.image = data.image || null; // VARCHAR(255) - 图片URL
     this.description = data.description || null; // VARCHAR(255) - 描述
     this.status = data.status !== undefined ? data.status : 1; // TINYINT - 1在售 0停售
+    this.type = data.type || null;
   }
 
   /**
@@ -21,6 +22,7 @@ class SetMeal {
       id: data.id,
       name: data.name,
       categoryId: data.categoryId || data.category_id,
+      type: data.type,
       price: data.price,
       image: data.image,
       description: data.description,

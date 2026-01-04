@@ -12,6 +12,7 @@ class Dish {
     this.description = data.description || null; // VARCHAR(255) - 描述
     this.status = data.status !== undefined ? data.status : 1; // TINYINT - 1在售 0停售
     this.sales = data.sales !== undefined ? data.sales : 0; // INT - 销量
+    this.type = data.type || null;
   }
 
   /**
@@ -22,6 +23,7 @@ class Dish {
       id: data.id,
       name: data.name,
       categoryId: data.categoryId || data.category_id,
+      type: data.type,
       price: data.price,
       image: data.image,
       description: data.description,

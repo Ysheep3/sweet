@@ -24,7 +24,7 @@ App({
     console.log('更新购物车图标，数量：', count);
 
     if (count > 0) {
-      const iconPath = 'assets/image/carted1.png';
+      const iconPath = 'assets/image/carted.png';
       my.setTabBarItem({
         index: 1,
         iconPath: iconPath,

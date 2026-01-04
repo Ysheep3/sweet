@@ -73,7 +73,7 @@
     <view class="fav-area" onTap="toggleFavorite">
       <image
         class="fav-icon"
-        src="{{isFavorite ? '/assets/image/carted1.png' : '/assets/image/carted.png'}}"
+        src="{{isFavorite ? '/assets/image/collected.png' : '/assets/image/collecte.png'}}"
       />
       <text class="fav-text">{{isFavorite ? '已收藏' : '收藏'}}</text>
     </view>
