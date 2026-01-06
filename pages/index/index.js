@@ -9,6 +9,7 @@ Page({
   onLoad() {
     this.updateTabBarBadge();
     // 先加载分类，加载完成后再加载商品
+    Promise
     this.loadCategories();
     this.loadProducts(0); // 0表示全部
 
@@ -26,12 +27,12 @@ Page({
       method: 'GET',
       success: (res) => {
         if (res.data && res.data.code === 1) {
-          const categories = res.data.data.map(item => ({
-            id: item.id,
-            name: item.name,
-            type: item.type,
-            sort: item.sort,
-            status: item.status
+          const categories = res.data.data.map(categoty => ({
+            id: categoty.id,
+            name: categoty.name,
+            type: categoty.type,
+            sort: categoty.sort,
+            status: categoty.status
           }));
           this.setData({
             categories
@@ -342,34 +343,53 @@ Page({
 
     if (!product) return;
 
-    // 获取购物车
-    let cart = my.getStorageSync({
-      key: 'cart'
-    }).data || [];
-
-    // 检查商品是否已在购物车
-    const existingItem = cart.find(item => item.id === productId);
-
-    if (existingItem) {
-      existingItem.quantity += 1;
-    } else {
-      cart.push({
-        ...product,
-        quantity: 1
-      });
+    const app = getApp();
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/';
+    
+    // 构建购物车数据
+    const cartData = {
+      productId: product.id,
+      productType: product.type || 1, // 默认为菜品
+      quantity: 1
+    };
+    
+    // 如果是菜品，添加默认甜度和温度
+    if (cartData.productType === 1) {
+      cartData.sweet = product.sweetOptions && product.sweetOptions.length > 0 
+        ? product.sweetOptions[0] 
+        : '';
+      cartData.temperature = product.tempOptions && product.tempOptions.length > 0 
+        ? product.tempOptions[0] 
+        : '';
     }
-
-    // 保存购物车
-    my.setStorageSync({
-      key: 'cart',
-      data: cart
-    });
-
-    this.updateTabBarBadge();
-
-    my.showToast({
-      content: '已添加到购物车',
-      type: 'success'
+    
+    my.request({
+      url: `${apiBaseUrl}cart/add`,
+      method: 'POST',
+      data: cartData,
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          // 更新购物车徽章
+          this.updateCartBadge();
+          
+          my.showToast({
+            content: '已添加到购物车',
+            type: 'success'
+          });
+        } else {
+          my.showToast({
+            content: res.data.msg || '加入购物车失败',
+            type: 'fail'
+          });
+        }
+      },
+      fail: (error) => {
+        console.error('加入购物车失败:', error);
+        my.showToast({
+          content: '网络错误，请重试',
+          type: 'fail'
+        });
+      }
     });
   },
 

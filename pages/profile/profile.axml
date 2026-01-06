@@ -4,83 +4,75 @@
     <view class="user-card-bg"></view>
 
     <view class="user-info-section">
-  <image src="{{userInfo.avatar}}" class="user-avatar" mode="aspectFill" />
-  <view class="user-details">
-    <text class="user-nickname">
-      {{userInfo.nickname}}
-    </text>
-    <text class="user-status">
-      {{userInfo.isLoggedIn ? '顾客' + ' 已登录' : '未登录'}}
-    </text>
-  </view>
-</view>
-
-<!-- 登录/退出按钮 -->
-<view class="user-actions">
-  <button 
-    a:if="{{!userInfo.isLoggedIn}}" 
-    class="btn-primary"
-    onTap="goToRoleSelect"
-  >
-    点击登录 / 选择角色
-  </button>
-
-  <view 
-    a:if="{{userInfo.isLoggedIn}}" 
-    class="btn-logout" 
-    onTap="handleLogout"
-  >
-    退出登录
-  </view>
-</view>
-
-  <!-- 功能菜单区域 -->
-  <view class="menu-section">
-    <text class="section-title">我的服务</text>
-
-    <view class="menu-grid">
-      <!-- 地址簿 -->
-      <view class="menu-card" onTap="manageAddress">
-        <view class="menu-icon-wrapper icon-address">
-          <text class="menu-icon">📍</text>
-        </view>
-        <text class="menu-card-title">地址簿管理</text>
-        <text class="menu-card-desc">管理收货地址</text>
-        <image src="/image/icon/arrowright.png" class="menu-arrow" />
-      </view>
-
-      <!-- 优惠券管理 -->
-      <view class="menu-card" onTap="manageCoupons">
-        <view class="menu-icon-wrapper icon-cart">
-          <text class="menu-icon">🎟️</text>
-        </view>
-        <text class="menu-card-title">优惠券管理</text>
-        <text class="menu-card-desc">查看和使用优惠券</text>
-        <image src="/image/icon/arrowright.png" class="menu-arrow" />
-      </view>
-
-      <!-- 订单 -->
-      <view class="menu-card" onTap="manageOrder">
-        <view class="menu-icon-wrapper icon-order">
-          <text class="menu-icon">📋</text>
-        </view>
-        <text class="menu-card-title">订单管理</text>
-        <text class="menu-card-desc">查看历史订单</text>
-        <image src="/image/icon/arrowright.png" class="menu-arrow" />
-      </view>
-
-      <!-- 收藏 -->
-      <view class="menu-card" onTap="manageFavorites">
-        <view class="menu-icon-wrapper icon-favorites">
-          <text class="menu-icon">❤️</text>
-        </view>
-        <text class="menu-card-title">我的收藏</text>
-        <text class="menu-card-desc">查看收藏菜品</text>
-        <image src="/image/icon/arrowright.png" class="menu-arrow" />
+      <image src="{{userInfo.avatar}}" class="user-avatar" mode="aspectFill" />
+      <view class="user-details">
+        <text class="user-nickname">
+          {{userInfo.nickname}}
+        </text>
+        <text class="user-status">
+          {{userInfo.isLoggedIn ? '顾客' + ' 已登录' : '未登录'}}
+        </text>
       </view>
     </view>
-  </view>
 
-  <!-- 底部装饰 -->
-  <view class="footer-decoration"></view>
-</view>
+    <!-- 登录/退出按钮 -->
+    <view class="user-actions">
+      <button a:if="{{!userInfo.isLoggedIn}}" class="btn-primary" onTap="goToRoleSelect">
+        点击登录 / 选择角色
+      </button>
+
+      <view a:if="{{userInfo.isLoggedIn}}" class="btn-logout" onTap="handleLogout">
+        退出登录
+      </view>
+    </view>
+
+    <!-- 功能菜单区域 -->
+    <view class="menu-section">
+      <text class="section-title">我的服务</text>
+
+      <view class="menu-grid">
+        <!-- 地址簿 -->
+        <view class="menu-card" onTap="manageAddress">
+          <view class="menu-icon-wrapper icon-address">
+            <text class="menu-icon">📍</text>
+          </view>
+          <text class="menu-card-title">地址簿管理</text>
+          <text class="menu-card-desc">管理收货地址</text>
+          <image src="/image/icon/arrowright.png" class="menu-arrow" />
+        </view>
+
+        <!-- 优惠券管理 -->
+        <view class="menu-card" onTap="manageCoupons">
+          <view class="menu-icon-wrapper icon-cart">
+            <text class="menu-icon">🎟️</text>
+          </view>
+          <text class="menu-card-title">优惠券管理</text>
+          <text class="menu-card-desc">查看和使用优惠券</text>
+          <image src="/image/icon/arrowright.png" class="menu-arrow" />
+        </view>
+
+        <!-- 订单 -->
+        <view class="menu-card" onTap="manageOrder">
+          <view class="menu-icon-wrapper icon-order">
+            <text class="menu-icon">📋</text>
+          </view>
+          <text class="menu-card-title">订单管理</text>
+          <text class="menu-card-desc">查看历史订单</text>
+          <image src="/image/icon/arrowright.png" class="menu-arrow" />
+        </view>
+
+        <!-- 收藏 -->
+        <view class="menu-card" onTap="manageFavorites">
+          <view class="menu-icon-wrapper icon-favorites">
+            <text class="menu-icon">❤️</text>
+          </view>
+          <text class="menu-card-title">我的收藏</text>
+          <text class="menu-card-desc">查看收藏菜品</text>
+          <image src="/image/icon/arrowright.png" class="menu-arrow" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部装饰 -->
+    <view class="footer-decoration"></view>
+  </view>

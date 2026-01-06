@@ -4,16 +4,16 @@
     <view class="user-card-bg"></view>
 
     <view class="user-info-section">
-  <image src="{{userInfo.avatar}}" class="user-avatar" mode="aspectFill" />
-  <view class="user-details">
-    <text class="user-nickname">
-      {{userInfo.nickname}}
-    </text>
-    <text class="user-status">
-      {{userInfo.isLoggedIn ? (userInfo.role === 'rider' ? '骑手' : '顾客') + ' 已登录' : '未登录'}}
-    </text>
-  </view>
-</view>
+      <image src="{{userInfo.avatar}}" class="user-avatar" mode="aspectFill" />
+      <view class="user-details">
+        <text class="user-nickname">
+          {{userInfo.nickname}}
+        </text>
+        <text class="user-status">
+          {{userInfo.isLoggedIn ? '顾客' + ' 已登录' : '未登录'}}
+        </text>
+      </view>
+    </view>
 
     <!-- 增强用户操作区域，添加登录/退出按钮 -->
     <view class="user-actions">
@@ -23,21 +23,13 @@
           <text class="stat-label">收藏数</text>
         </view>
       </view>
-      
+
       <view class="user-actions">
-        <button 
-          a:if="{{!userInfo.isLoggedIn}}" 
-          class="btn-primary"
-          onTap="goToRoleSelect"
-        >
+        <button a:if="{{!userInfo.isLoggedIn}}" class="btn-primary" onTap="goToRoleSelect">
           点击登录 / 选择角色
         </button>
-      
-        <view 
-          a:if="{{userInfo.isLoggedIn}}" 
-          class="btn-logout" 
-          onTap="handleLogout"
-        >
+
+        <view a:if="{{userInfo.isLoggedIn}}" class="btn-logout" onTap="handleLogout">
           退出登录
         </view>
       </view>
@@ -45,28 +37,47 @@
   </view>
 
   <!-- 收藏菜品列表 -->
-  <view class="favorites-section" a:if="{{favorites.length > 0}}">
+  <view a:if="{{favorites.length > 0}}" class="favorites-section">
     <text class="section-title">我的收藏</text>
-    
+
     <view class="favorites-grid">
-      <view class="favorite-card" a:for="{{favorites}}" a:key="id">
+      <view a:for="{{favorites}}" class="favorite-card" a:key="id">
         <image src="{{item.image}}" class="favorite-image" mode="aspectFill" />
-        
+
         <view class="favorite-info">
           <text class="favorite-name">{{item.name}}</text>
           <text class="favorite-desc">{{item.description}}</text>
-          
+
           <view class="favorite-footer">
             <text class="favorite-price">¥{{item.price}}</text>
             <view class="favorite-actions">
-              <button class="btn-add" size="mini" onTap="addToCart" data-id="{{item.id}}">加购</button>
-              <button class="btn-remove" size="mini" onTap="removeFavorite" data-id="{{item.id}}">移除</button>
+              <button
+                class="btn-add"
+                size="mini"
+                onTap="addToCart"
+                data-id="{{item.id}}"
+              >
+                加购
+              </button>
+              <button
+                class="btn-remove"
+                size="mini"
+                onTap="removeFavorite"
+                data-id="{{item.id}}"
+              >
+                移除
+              </button>
             </view>
           </view>
         </view>
-        
+
         <!-- 改进快速移除按钮 -->
-        <view class="favorite-heart" onTap="removeFavorite" data-id="{{item.id}}" title="快速移除">
+        <view
+          class="favorite-heart"
+          onTap="removeFavorite"
+          data-id="{{item.id}}"
+          title="快速移除"
+        >
           ❤️
         </view>
       </view>
@@ -74,7 +85,7 @@
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state" a:if="{{favorites.length === 0}}">
+  <view a:if="{{favorites.length === 0}}" class="empty-state">
     <text class="empty-icon">💝</text>
     <text class="empty-title">还没有收藏哦</text>
     <text class="empty-desc">浏览商品时点击收藏按钮，将喜爱的菜品保存起来</text>
