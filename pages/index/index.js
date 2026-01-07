@@ -1,403 +1,413 @@
 Page({
   data: {
-    searchKeyword: '',
+    searchKeyword: "",
     activeCategoryId: 0,
     categories: [],
-    products: []
+    products: [],
+    showFlyBall: false,
+    ballStartX: 0,
+    ballStartY: 0,
+    flyBalls: []
   },
 
   onLoad() {
-    this.updateTabBarBadge();
-    // 先加载分类，加载完成后再加载商品
-    Promise
-    this.loadCategories();
-    this.loadProducts(0); // 0表示全部
-
+    this.updateTabBarBadge()
+    this.loadCategories()
+    this.loadProducts(0)
   },
 
   onShow() {
-    this.updateTabBarBadge();
+    this.updateTabBarBadge()
   },
 
   loadCategories() {
-    const app = getApp();
-    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
     my.request({
       url: `${apiBaseUrl}items/user/category/list`,
-      method: 'GET',
+      method: "GET",
       success: (res) => {
         if (res.data && res.data.code === 1) {
-          const categories = res.data.data.map(categoty => ({
-            id: categoty.id,
-            name: categoty.name,
-            type: categoty.type,
-            sort: categoty.sort,
-            status: categoty.status
-          }));
+          const categories = res.data.data.map((category) => ({
+            id: category.id,
+            name: category.name,
+            type: category.type,
+            sort: category.sort,
+            status: category.status,
+          }))
           this.setData({
-            categories
-          });
+            categories,
+            activeCategoryId: categories.length > 0 ? categories[0].id : 0
+          })
         }
       },
       fail: (error) => {
         my.showToast({
-          type: 'fail',
-          content: res.data.msg
-        });
-      }
-    });
+          type: "fail",
+          content: "请求失败",
+        })
+      },
+    })
   },
 
-  // 加载商品数据（并行请求菜品和套餐）
   async loadProducts(categoryId) {
     this.setData({
-      loading: true
-    });
+      loading: true,
+    })
 
     try {
-      // 并行请求菜品和套餐
-      const [dishes, setmeals] = await Promise.all([
-        this.getDishes(categoryId),
-        this.getSetmeals(categoryId)
-      ]);
+      const [dishes, setmeals] = await Promise.all([this.getDishes(categoryId), this.getSetmeals(categoryId)])
 
-      // 合并结果
-      const products = [...dishes, ...setmeals];
+      const products = [...dishes, ...setmeals]
 
       this.setData({
         products,
-        loading: false
-      });
-
+        loading: false,
+      })
     } catch (error) {
-      console.error('加载商品失败:', error);
+      console.error("加载商品失败:", error)
       this.setData({
         products: [],
-        loading: false
-      });
+        loading: false,
+      })
     }
   },
 
-  // 获取菜品
   getDishes(categoryId) {
     return new Promise((resolve) => {
-      const app = getApp();
-      const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/';
+      const app = getApp()
+      const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
 
       my.request({
         url: `${apiBaseUrl}items/user/dish/list`,
         data: categoryId >= 0 ? {
-          categoryId
+          categoryId,
         } : {},
-        method: 'GET',
+        method: "GET",
         success: (res) => {
           if (res.data && res.data.code === 1) {
-            const Dish = require('../../models/Dish');
-            const dishes = res.data.data.map(item => {
-              const dish = Dish.fromApi(item);
-              return dish;
-            });
-            resolve(dishes);
+            const Dish = require("../../models/Dish")
+            const dishes = res.data.data.map((item) => {
+              const dish = Dish.fromApi(item)
+              return dish
+            })
+            resolve(dishes)
           } else {
-            resolve([]);
+            resolve([])
           }
         },
         fail: () => {
-          resolve([]);
-        }
-      });
-    });
+          resolve([])
+        },
+      })
+    })
   },
 
-  // 获取套餐
   getSetmeals(categoryId) {
     return new Promise((resolve) => {
-      const app = getApp();
-      const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/';
+      const app = getApp()
+      const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
 
       my.request({
         url: `${apiBaseUrl}items/user/setmeal/list`,
         data: categoryId >= 0 ? {
-          categoryId
+          categoryId,
         } : {},
-        method: 'GET',
+        method: "GET",
         success: (res) => {
           if (res.data && res.data.code === 1) {
-            const Setmeal = require('../../models/Setmeal');
-            const setmeals = res.data.data.map(item => {
-              const setmeal = Setmeal.fromApi(item);
-              return setmeal;
-            });
-            resolve(setmeals);
+            const Setmeal = require("../../models/Setmeal")
+            const setmeals = res.data.data.map((item) => {
+              const setmeal = Setmeal.fromApi(item)
+              return setmeal
+            })
+            resolve(setmeals)
           } else {
-            resolve([]);
+            resolve([])
           }
         },
         fail: () => {
-          resolve([]);
-        }
-      });
-    });
+          resolve([])
+        },
+      })
+    })
   },
 
-  // 切换分类
   switchCategory(e) {
-    const categoryId = e.currentTarget.dataset.id;
-    const type = e.currentTarget.dataset.type;
+    const categoryId = e.currentTarget.dataset.id
+    const type = e.currentTarget.dataset.type
 
-    // 更新选中状态
     this.setData({
       activeCategoryId: categoryId,
-      searchKeyword: ''
-    });
+      searchKeyword: "",
+    })
 
-    // 1为菜品，2为套餐
     if (type === 1) {
-      this.loadDishes(categoryId);
+      this.loadDishes(categoryId)
     } else if (type === 2) {
-      this.loadSetmeals(categoryId);
+      this.loadSetmeals(categoryId)
     } else {
-      this.loadProducts(categoryId);
+      this.loadProducts(categoryId)
     }
   },
 
-  // 加载菜品
   loadDishes(categoryId) {
-    const app = getApp();
-    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
 
     my.request({
       url: `${apiBaseUrl}items/user/dish/list`,
       data: {
-        'categoryId': categoryId
+        categoryId: categoryId,
       },
-      method: 'GET',
+      method: "GET",
       success: (res) => {
         if (res.data && res.data.code === 1) {
-          const Dish = require('../../models/Dish');
-          const products = res.data.data.map(item => {
-            const dish = Dish.fromApi(item);
-            return dish;
-          });
+          const Dish = require("../../models/Dish")
+          const products = res.data.data.map((item) => {
+            const dish = Dish.fromApi(item)
+            return dish
+          })
           this.setData({
-            products
-          });
+            products,
+          })
         } else {
           this.setData({
-            products: []
-          });
+            products: [],
+          })
         }
       },
       fail: (error) => {
         my.showToast({
-          type: 'fail',
-          content: res.data.msg
-        });
-      }
-    });
+          type: "fail",
+          content: "请求失败",
+        })
+      },
+    })
   },
 
-  // 加载套餐
   loadSetmeals(categoryId) {
-    const app = getApp();
-    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
 
     my.request({
       url: `${apiBaseUrl}items/user/setmeal/list`,
       data: {
-        'categoryId': categoryId
+        categoryId: categoryId,
       },
-      method: 'GET',
+      method: "GET",
       success: (res) => {
         if (res.data && res.data.code === 1) {
-          const Setmeal = require('../../models/Setmeal');
-          const products = res.data.data.map(item => {
-            const setmeal = Setmeal.fromApi(item);
-            return setmeal;
-          });
+          const Setmeal = require("../../models/Setmeal")
+          const products = res.data.data.map((item) => {
+            const setmeal = Setmeal.fromApi(item)
+            return setmeal
+          })
           this.setData({
-            products
-          });
+            products,
+          })
         }
       },
       fail: (error) => {
         my.showToast({
-          type: 'fail',
-          content: res.data.msg
-        });
-      }
-    });
+          type: "fail",
+          content: "请求失败",
+        })
+      },
+    })
   },
 
-  // 搜索输入
   onSearchConfirm(e) {
-    const keyword = e.detail.value;
-    console.log('搜索词：', keyword);
+    const keyword = e.detail.value
+    console.log("搜索词：", keyword)
     this.setData({
-      searchKeyword: keyword
-    });
+      searchKeyword: keyword,
+    })
 
-    const app = getApp();
-    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/'
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
 
     if (keyword.trim()) {
       my.request({
         url: `${apiBaseUrl}items/user/dish/search`,
-        method: 'GET',
+        method: "GET",
         data: {
-          keyword: keyword
+          keyword: keyword,
         },
         success: (res) => {
           if (res.data && res.data.code === 1) {
-            const Dish = require('../../models/Dish');
-            const Setmeal = require('../../models/Setmeal');
+            const Dish = require("../../models/Dish")
+            const Setmeal = require("../../models/Setmeal")
 
-            console.log("res:",res.data.data);
-            const products = res.data.data.map(item => {
-
+            console.log("res:", res.data.data)
+            const products = res.data.data.map((item) => {
               if (item.type) {
-                // 如果后端返回了type字段
-                const type = parseInt(item.type);
+                const type = Number.parseInt(item.type)
                 if (type === 2) {
-                  const setmeal = Setmeal.fromApi(item);
-                  return setmeal;
+                  const setmeal = Setmeal.fromApi(item)
+                  return setmeal
                 } else {
-                  const dish = Dish.fromApi(item);
-                  return dish;
+                  const dish = Dish.fromApi(item)
+                  return dish
                 }
               }
-            });
+            })
 
             this.setData({
-              products
-            });
+              products,
+            })
           } else {
             this.setData({
-              products: []
-            });
+              products: [],
+            })
           }
         },
         fail: (error) => {
-          console.error('搜索失败:', error);
+          console.error("搜索失败:", error)
           my.showToast({
-            type: 'fail',
-            content: '搜索失败'
-          });
-        }
-      });
+            type: "fail",
+            content: "搜索失败",
+          })
+        },
+      })
     } else {
-      // 如果搜索词为空，重新加载当前分类
       const {
         activeCategoryId
-      } = this.data;
+      } = this.data
       if (activeCategoryId === 0) {
-        this.loadProducts(0);
+        this.loadProducts(0)
       } else {
-        const currentCategory = this.data.categories.find(cat => cat.id === activeCategoryId);
+        const currentCategory = this.data.categories.find((cat) => cat.id === activeCategoryId)
         if (currentCategory && currentCategory.type === 1) {
-          this.loadDishes(activeCategoryId);
+          this.loadDishes(activeCategoryId)
         } else if (currentCategory && currentCategory.type === 2) {
-          this.loadSetmeals(activeCategoryId);
+          this.loadSetmeals(activeCategoryId)
         }
       }
     }
   },
 
-
-  // 清空搜索
   clearSearch() {
     const {
       activeCategoryId
-    } = this.data;
+    } = this.data
 
     this.setData({
       activeCategoryId: 0,
-      searchKeyword: ''
-    });
+      searchKeyword: "",
+    })
 
-    this.loadProducts(0);
+    this.loadProducts(0)
   },
 
-  // 查看商品详情
   viewProductDetail(e) {
-    const productId = e.currentTarget.dataset.id;
-    const productType = e.currentTarget.dataset.type; // 1表示菜品，2表示套餐
+    const productId = e.currentTarget.dataset.id
+    const productType = e.currentTarget.dataset.type
 
-    console.log("type:", productType);
-    // 如果没有传递type，尝试从products数组中查找
-    let type = productType;
+    console.log("type:", productType)
+    let type = productType
     if (!type) {
-      const product = this.data.products.find(p => p.id === productId);
-      type = product ? product.type : 1; // 默认当作菜品处理
+      const product = this.data.products.find((p) => p.id === productId)
+      type = product ? product.type : 1
     }
 
     my.navigateTo({
-      url: `/pages/product-detail/product-detail?id=${productId}&type=${type}`
-    });
+      url: `/pages/product-detail/product-detail?id=${productId}&type=${type}`,
+    })
   },
 
-  // 添加到购物车
   addToCart(e) {
-    const productId = e.currentTarget.dataset.id;
-    const product = this.data.products.find(p => p.id === productId);
+    const {
+      id,
+      type,
+      index
+    } = e.currentTarget.dataset
 
-    if (!product) return;
+    // ====== ① 创建飞球 ======
+    const query = my.createSelectorQuery()
+    query.select(`#add-btn-${index}`).boundingClientRect()
+    query.exec(res => {
+      if (!res || !res[0]) return
 
-    const app = getApp();
-    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/';
-    
-    // 构建购物车数据
-    const cartData = {
-      productId: product.id,
-      productType: product.type || 1, // 默认为菜品
-      quantity: 1
-    };
-    
-    // 如果是菜品，添加默认甜度和温度
-    if (cartData.productType === 1) {
-      cartData.sweet = product.sweetOptions && product.sweetOptions.length > 0 
-        ? product.sweetOptions[0] 
-        : '';
-      cartData.temperature = product.tempOptions && product.tempOptions.length > 0 
-        ? product.tempOptions[0] 
-        : '';
+      const rect = res[0]
+      const startX = rect.left + rect.width / 2
+      const startY = rect.top + rect.height / 2
+
+      const systemInfo = my.getSystemInfoSync()
+      const targetX = systemInfo.windowWidth / 2
+      const targetY = systemInfo.windowHeight - 50
+
+      const ballId = Date.now() + Math.random()
+
+      const flyBall = {
+        id: ballId,
+        startX,
+        startY,
+        dx: targetX - startX,
+        dy: targetY - startY
+      }
+
+      this.setData({
+        flyBalls: [...this.data.flyBalls, flyBall]
+      })
+
+      // 动画结束后只删除自己
+      setTimeout(() => {
+        this.setData({
+          flyBalls: this.data.flyBalls.filter(item => item.id !== ballId)
+        })
+      }, 900)
+    })
+
+    console.log("type:", type)
+
+    const cartData = type === 1 ? {
+      dishId: id
+    } : {
+      setmealId: id
     }
-    
+
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+
+
     my.request({
-      url: `${apiBaseUrl}cart/add`,
-      method: 'POST',
+      url: `${apiBaseUrl}shopping-cart/add`,
+      method: "POST",
       data: cartData,
+      headers: {
+        "Content-Type": "application/json",
+        authentication: app.globalData.authentication,
+      },
       success: (res) => {
         if (res.data && res.data.code === 1) {
-          // 更新购物车徽章
-          this.updateCartBadge();
-          
+          this.updateTabBarBadge()
+
           my.showToast({
-            content: '已添加到购物车',
-            type: 'success'
-          });
+            content: "已添加到购物车",
+            type: "success",
+          })
         } else {
           my.showToast({
-            content: res.data.msg || '加入购物车失败',
-            type: 'fail'
-          });
+            content: res.data.msg || "加入购物车失败",
+            type: "fail",
+          })
         }
       },
       fail: (error) => {
-        console.error('加入购物车失败:', error);
+        console.error("加入购物车失败:", error)
         my.showToast({
-          content: '网络错误，请重试',
-          type: 'fail'
-        });
-      }
-    });
+          content: "网络错误，请重试",
+          type: "fail",
+        })
+      },
+    })
   },
 
-  // 更新底部导航栏购物车徽章
   updateTabBarBadge() {
-    const app = getApp();
+    const app = getApp()
     if (app && app.updateTabBarBadge) {
-      app.updateTabBarBadge();
+      app.updateTabBarBadge()
     }
-  }
-});
+  },
+})

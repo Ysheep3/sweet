@@ -12,7 +12,7 @@
   border-radius: 16rpx;
   display: flex;
   align-items: center;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .address-content {
@@ -64,7 +64,7 @@
   margin-bottom: 20rpx;
   display: flex;
   align-items: center;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
 
 .item-check {
@@ -79,13 +79,31 @@
   height: 36rpx;
   border-radius: 50%;
   border: 2rpx solid #ccc;
+  background-color: #fff;
   box-sizing: border-box;
+  position: relative;
+  transition: all 0.2s ease;
 }
 
+/* 选中态 */
 .check-circle.checked {
   background-color: #d4745f;
   border-color: #d4745f;
 }
+
+/* 白色对勾 */
+.check-circle.checked::after {
+  content: '';
+  position: absolute;
+  left: 10rpx;
+  top: 6rpx;
+  width: 10rpx;
+  height: 18rpx;
+  border: solid #fff;
+  border-width: 0 4rpx 4rpx 0;
+  transform: rotate(45deg);
+}
+
 
 .item-image {
   width: 160rpx;

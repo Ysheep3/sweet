@@ -1,23 +1,24 @@
 <view class="container">
-  <!-- 搜索框样式优化 -->
+
+  <!-- 搜索框 -->
   <view class="search-bar">
-    <input 
+    <input
       type="text"
-      placeholder="搜索餐品" 
+      placeholder="搜索餐品"
       value="{{searchKeyword}}"
       onConfirm="onSearchConfirm"
       class="input"
     />
-    <text a:if="{{searchKeyword}}" onTap="clearSearch" class="clear">×</text>
   </view>
 
   <view class="content">
-    <!-- 分类侧边栏 -->
+
+    <!-- 分类 -->
     <scroll-view class="category-sidebar" scroll-y>
-      <view 
-        class="category-item {{activeCategoryId === item.id ? 'active' : ''}}"
+      <view
         a:for="{{categories}}"
         a:key="id"
+        class="category-item {{activeCategoryId === item.id ? 'active' : ''}}"
         data-id="{{item.id}}"
         data-type="{{item.type}}"
         onTap="switchCategory"
@@ -28,35 +29,43 @@
 
     <!-- 商品列表 -->
     <scroll-view class="product-list" scroll-y>
-      <view 
-        class="product-item"
+      <view
         a:for="{{products}}"
+        class="product-item"
         a:key="id"
         onTap="viewProductDetail"
         data-id="{{item.id}}"
         data-type="{{item.type}}"
       >
-        <image src="{{item.image}}" class="product-image" mode="aspectFill" />
+        <image src="{{item.image}}" class="product-image" />
+
         <view class="product-info">
           <view class="product-name">{{item.name}}</view>
-          <view class="product-desc">{{item.description}}</view>
           <view class="product-footer">
             <text class="product-price">¥{{item.price}}</text>
+
             <button
+              id="add-btn-{{index}}"
               class="add-btn"
-              size="mini"
-              type="primary"
               catchTap="addToCart"
               data-id="{{item.id}}"
+              data-type="{{item.type}}"
+              data-index="{{index}}"
             >
               加购
             </button>
           </view>
         </view>
       </view>
-      <view class="empty-tip" a:if="{{products.length === 0}}">
-        {{searchKeyword ? '未找到相关商品' : '暂无商品'}}
-      </view>
     </scroll-view>
+  </view>
+
+  <!-- ====== 多个 +1 飞球（重点） ====== -->
+  <view a:for="{{flyBalls}}" a:key="id" class="fly-ball active" style="
+      left: {{item.startX}}px;
+      top: {{item.startY}}px;
+      transform: translate3d({{item.dx}}px, {{item.dy}}px, 0) scale(0.3);
+    ">
+    <view class="inner-ball">+1</view>
   </view>
 </view>

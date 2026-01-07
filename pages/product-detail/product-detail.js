@@ -258,64 +258,47 @@ Page({
   // 加入购物车
   addToCart() {
     const {
-      product,
-      sweet,
-      temperature,
-      productType
+      product
     } = this.data;
-
-    if (!product || !product.id) {
-      my.showToast({
-        content: '商品信息不完整',
-        type: 'fail'
-      });
-      return;
-    }
 
     const app = getApp();
     const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/';
 
-    // 构建购物车数据
-    const cartData = {
-      productId: product.id,
-      productType: productType,
-      quantity: 1
-    };
-
-    // 如果是菜品，添加甜度和温度
-    if (productType === 1) {
-      cartData.sweet = sweet;
-      cartData.temperature = temperature;
+    const cartData = product.type === 1 ? {
+      dishId: product.id
+    } : {
+      setmealId: product.id
     }
 
     my.request({
-      url: `${apiBaseUrl}cart/add`,
-      method: 'POST',
+      url: `${apiBaseUrl}shopping-cart/add`,
+      method: "POST",
       data: cartData,
+      headers: {
+        "Content-Type": "application/json",
+        authentication: app.globalData.authentication,
+      },
       success: (res) => {
         if (res.data && res.data.code === 1) {
-          // 更新底部导航栏购物车徽章
-          this.updateCartBadge();
-
           my.showToast({
-            content: '已加入购物车',
-            type: 'success'
-          });
+            content: "已添加到购物车",
+            type: "success",
+          })
         } else {
           my.showToast({
-            content: res.data.msg || '加入购物车失败',
-            type: 'fail'
-          });
+            content: res.data.msg || "加入购物车失败",
+            type: "fail",
+          })
         }
       },
       fail: (error) => {
-        console.error('加入购物车失败:', error);
+        console.error("加入购物车失败:", error)
         my.showToast({
-          content: '网络错误，请重试',
-          type: 'fail'
-        });
-      }
-    });
+          content: "网络错误，请重试",
+          type: "fail",
+        })
+      },
+    })
   },
 
   // 更新购物车徽章

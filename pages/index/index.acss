@@ -8,15 +8,12 @@ page {
   --color-border: #e8dcd0;
 }
 
-
-
 .container {
   height: 100vh;
   background-color: var(--color-light);
   position: relative;
 }
 
-/* 搜索框样式现代化 */
 .search-bar {
   display: flex;
   align-items: center;
@@ -59,7 +56,6 @@ page {
   height: calc(100vh - 160rpx);
 }
 
-/* 分类侧边栏样式优化 */
 .category-sidebar {
   width: 180rpx;
   background-color: white;
@@ -75,7 +71,6 @@ page {
   transition: all 0.3s ease;
 }
 
-/* 分类选中状态使用主色系 */
 .category-item.active {
   color: white;
   background: linear-gradient(135deg, var(--color-primary) 0%, #e8987f 100%);
@@ -84,14 +79,12 @@ page {
   font-weight: 600;
 }
 
-/* 商品列表容器背景 */
 .product-list {
   flex: 1;
   padding: 20rpx;
   background-color: var(--color-light);
 }
 
-/* 商品卡片设计现代化 */
 .product-item {
   background-color: white;
   border-radius: 20rpx;
@@ -146,14 +139,12 @@ page {
   gap: 16rpx;
 }
 
-/* 价格颜色使用主色 */
 .product-price {
   font-size: 36rpx;
   color: var(--color-primary);
   font-weight: 600;
 }
 
-/* 加购按钮样式 */
 .add-btn {
   background-color: var(--color-primary) !important;
   color: white !important;
@@ -170,11 +161,84 @@ page {
   align-items: center !important;
   justify-content: center !important;
   text-align: center;
+  position: relative;
+  overflow: visible;
 }
 
 .add-btn:active {
   background-color: #b85c4a !important;
   transform: scale(0.95);
+}
+
+.fly-ball {
+  position: fixed;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform, opacity;
+}
+
+.fly-ball.active {
+  opacity: 1;
+  animation: flyToCart 0.9s cubic-bezier(0.2, 0.0, 0.2, 1) forwards;
+}
+
+.inner-ball {
+  color: white;
+  font-size: 20rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* 优化为流畅的3段式抛物线动画 */
+@keyframes flyToCart {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-150rpx, -80rpx) scale(0.9);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-380rpx, 900rpx, 0) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.add-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 20rpx;
+  background-color: var(--color-primary);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.add-btn.pulse::after {
+  animation: pulse 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
 }
 
 .empty-tip {
