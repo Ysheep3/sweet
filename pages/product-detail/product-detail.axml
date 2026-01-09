@@ -1,42 +1,77 @@
 <view class="page">
+
+  <!-- 商品图片 -->
   <view class="image-wrapper">
     <image class="product-image" src="{{product.image}}" mode="aspectFill" />
-    <view class="tag" a:if="{{product.isNew}}">新品</view>
-    <view class="tag hot" a:if="{{product.isHot}}">热销</view>
+    <view a:if="{{product.isNew}}" class="tag">新品</view>
+    <view a:if="{{product.isHot}}" class="tag hot">热销</view>
   </view>
 
+  <!-- 主信息卡片 -->
   <view class="main-card">
-    <view class="title-row">
-      <view class="name">{{product.name}}</view>
-      <view class="price">¥{{product.price}}</view>
+
+    <!-- 右上角操作区 -->
+    <view class="action-area">
+      <view class="fav-btn" onTap="toggleFavorite">
+        <image
+          src="{{isFavorite ? '/assets/image/collected.png' : '/assets/image/collecte.png'}}"
+          class="fav-icon"
+        />
+      </view>
+
+      <view a:if="{{cartQuantity > 0}}" class="quantity-control">
+        <view class="quantity-btn decrease-btn" catchTap="decreaseQuantity">
+          -
+        </view>
+        <text class="quantity-text">{{cartQuantity}}</text>
+        <view class="quantity-btn increase-btn" id="detail-add-btn" catchTap="increaseQuantity">
+          +
+        </view>
+      </view>
+      <view a:else class="cart-btn" id="detail-add-btn" catchTap="addToCart">
+        加购
+      </view>
     </view>
+
+    <!-- 价格（上） -->
+    <view class="price-big">¥{{product.price}}</view>
+
+    <!-- 名称 -->
+    <view class="name">{{product.name}}</view>
+
     <view class="sub-info">
       <text class="sales">月售 {{product.monthSales || 0}} 份</text>
-      <text class="score" a:if="{{product.rate}}">评分 {{product.rate}}</text>
+      <text a:if="{{product.rate}}" class="score">评分 {{product.rate}}</text>
     </view>
-    <view class="desc">{{product.description || '清甜不腻，现做现卖。'}}</view>
+
+    <view class="desc">
+      {{product.description || '清甜不腻，现做现卖。'}}
+    </view>
   </view>
 
+  <!-- 制作材料 -->
   <view class="section-card">
     <view class="section-title">制作材料</view>
     <view class="material-tags">
-      <view class="material-tag" a:for="{{product.materials}}" a:key="*this">
+      <view a:for="{{product.materials}}" class="material-tag" a:key="*this">
         {{item}}
       </view>
     </view>
-    <view class="tips" a:if="{{product.tips}}">
+    <view a:if="{{product.tips}}" class="tips">
       {{product.tips}}
     </view>
   </view>
 
-  <view class="section-card" a:if="{{product.sweetOptions || product.tempOptions}}">
-    <view class="section-title">口味/温度</view>
-    <view class="option-group" a:if="{{product.sweetOptions}}">
+  <!-- 口味 / 温度 -->
+  <view a:if="{{product.sweetOptions || product.tempOptions}}" class="section-card">
+    <view class="section-title">口味 / 温度</view>
+
+    <view a:if="{{product.sweetOptions}}" class="option-group">
       <view class="option-label">甜度</view>
       <view class="option-tags">
         <view
-          class="option-tag {{sweet === item ? 'active' : ''}}"
           a:for="{{product.sweetOptions}}"
+          class="option-tag {{sweet === item ? 'active' : ''}}"
           a:key="*this"
           data-value="{{item}}"
           onTap="onSweetChange"
@@ -46,12 +81,12 @@
       </view>
     </view>
 
-    <view class="option-group" a:if="{{product.tempOptions}}">
+    <view a:if="{{product.tempOptions}}" class="option-group">
       <view class="option-label">温度</view>
       <view class="option-tags">
         <view
-          class="option-tag {{temperature === item ? 'active' : ''}}"
           a:for="{{product.tempOptions}}"
+          class="option-tag {{temperature === item ? 'active' : ''}}"
           a:key="*this"
           data-value="{{item}}"
           onTap="onTempChange"
@@ -62,31 +97,59 @@
     </view>
   </view>
 
+  <!-- 商品详情 -->
   <view class="section-card">
     <view class="section-title">商品详情</view>
     <view class="detail-text">
-      {{product.detail || '本店精选新鲜食材，每日限量现做，保证口感与品质。适合作为下午茶或聚会甜点搭配咖啡、红茶一起享用。'}}
+      {{product.detail || '本店精选新鲜食材，每日限量现做，保证口感与品质。'}}
     </view>
   </view>
 
-  <view class="bottom-bar">
-    <view class="fav-area" onTap="toggleFavorite">
-      <image
-        class="fav-icon"
-        src="{{isFavorite ? '/assets/image/collected.png' : '/assets/image/collecte.png'}}"
-      />
-      <text class="fav-text">{{isFavorite ? '已收藏' : '收藏'}}</text>
+  <!-- ====== 多个 +1 飞球（重点） ====== -->
+  <view a:for="{{flyBalls}}" a:key="id" class="fly-ball active" style="
+      left: {{item.startX}}px;
+      top: {{item.startY}}px;
+      transform: translate3d({{item.dx}}px, {{item.dy}}px, 0) scale(0.3);
+    ">
+    <view class="inner-ball">+1</view>
+  </view>
+
+  <!-- 底部结算导航栏 -->
+  <view a:if="{{showBottomBar}}" class="footer-bar" onTap="openCartPopup">
+    <view class="footer-left" >
+      <text class="cart-info">购物车({{cartCount}})</text>
     </view>
-    <view class="bottom-info">
-      <view class="bottom-price">
-        <text class="label">单价</text>
-        <text class="value">¥{{product.price}}</text>
-      </view>
+    <view class="total">
+      <text>合计：</text>
+      <text class="total-price">¥{{cartTotalPrice}}</text>
     </view>
-    <button class="buy-btn" type="primary" onTap="addToCart">
-      加入购物车
+    <button class="submit-btn" onTap="goToCheckout">
+      <text style="color:#fff">去结算</text>
     </button>
   </view>
+  <!-- 遮罩 -->
+  <view a:if="{{showCartPopup}}" class="cart-mask" catchTap="closeCartPopup" />
+
+  <!-- 弹层主体 -->
+  <view class="cart-popup {{showCartPopup ? 'show' : ''}}" catchTap="noop">
+    <view class="cart-header">
+      <text>已选商品</text>
+      <text class="clear-btn" onTap="clearCart">清空</text>
+    </view>
+
+    <scroll-view scroll-y class="cart-list">
+      <view a:for="{{cartItems}}" class="cart-item" a:key="{{item.dishId || item.setmealId}}">
+        <view class="info">
+          <text class="name">{{item.name}}</text>
+          <text class="price">¥{{item.amount}}</text>
+        </view>
+
+        <view class="counter">
+          <text class="btn" onTap="popupDecrease" data-item="{{item}}">-</text>
+          <text class="num">{{item.number}}</text>
+          <text class="btn" onTap="popupIncrease" data-item="{{item}}">+</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
 </view>
-
-

@@ -54,6 +54,7 @@ page {
 .content {
   display: flex;
   height: calc(100vh - 160rpx);
+  padding-bottom: 100rpx;
 }
 
 .category-sidebar {
@@ -148,13 +149,13 @@ page {
 .add-btn {
   background-color: var(--color-primary) !important;
   color: white !important;
-  border-radius: 20rpx !important;
+  border-radius: 50% !important;
   border: none !important;
-  padding: 16rpx 32rpx !important;
+  padding: 0 !important;
   font-size: 24rpx !important;
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
-  min-width: 120rpx;
+  width: 64rpx !important;
   height: 64rpx !important;
   line-height: 64rpx !important;
   display: flex !important;
@@ -168,6 +169,55 @@ page {
 .add-btn:active {
   background-color: #b85c4a !important;
   transform: scale(0.95);
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.quantity-btn {
+  width: 64rpx !important;
+  height: 64rpx !important;
+  border-radius: 50% !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 32rpx !important;
+  font-weight: 600 !important;
+  line-height: 64rpx !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+}
+
+.decrease-btn {
+  background-color: #f5f5f5 !important;
+  color: var(--color-primary) !important;
+}
+
+.decrease-btn:active {
+  background-color: #e0e0e0 !important;
+  transform: scale(0.95);
+}
+
+.increase-btn {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.increase-btn:active {
+  background-color: #b85c4a !important;
+  transform: scale(0.95);
+}
+
+.quantity-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333;
+  min-width: 40rpx;
+  text-align: center;
 }
 
 .fly-ball {
@@ -247,4 +297,170 @@ page {
   color: #bbb;
   font-size: 28rpx;
   font-weight: 500;
+}
+
+/* 底部结算导航栏 */
+.footer-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #fff;
+  padding: 20rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1rpx solid #eee;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+}
+
+.cart-info {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.total {
+  font-size: 28rpx;
+  color: #333;
+  flex: 1;
+  text-align: right;
+  margin-right: 20rpx;
+}
+
+.total-price {
+  font-size: 36rpx;
+  color: #ff4444;
+  font-weight: bold;
+  margin-left: 10rpx;
+}
+
+.submit-btn {
+  background-color: #d4745f;
+  padding: 0 40rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  border-radius: 35rpx;
+  border: none;
+}
+
+/* 遮罩 */
+.cart-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 99;
+}
+
+/* 弹层主体 */
+.cart-popup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -700rpx;
+  background: #fff;
+  border-radius: 32rpx 32rpx 0 0;
+  z-index: 100;
+  transition: bottom 0.3s ease;
+  box-shadow: 0 -12rpx 40rpx rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.cart-popup.show {
+  bottom: 0;
+}
+
+/* 头部 */
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  font-size: 30rpx;
+  color: #333;
+  background: #fafafa;
+  border-bottom: 1rpx solid #eee;
+}
+
+.cart-header .clear-btn {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.cart-header .clear-btn:active {
+  opacity: 0.6;
+}
+
+/* 列表 */
+.cart-list {
+  height: 600rpx;
+  padding: 8rpx 0;
+}
+
+/* 单个商品 */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16rpx 24rpx;
+  padding: 20rpx 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 左侧信息 */
+.cart-item .info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-item .name {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.cart-item .price {
+  font-size: 26rpx;
+  color: #ff4d4f;
+}
+
+/* 计数器 */
+.counter {
+  display: flex;
+  align-items: center;
+}
+
+/* + - 按钮 */
+.btn {
+  width: 52rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 32rpx;
+  color: #333;
+  background: #f5f5f5;
+}
+
+.btn:active {
+  background: #eaeaea;
+}
+
+/* 数量 */
+.num {
+  min-width: 40rpx;
+  text-align: center;
+  margin: 0 16rpx;
+  font-size: 28rpx;
+  color: #333;
 }

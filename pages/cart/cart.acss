@@ -140,11 +140,42 @@
 }
 
 .quantity-btn {
-  width: 50rpx;
-  height: 50rpx;
-  line-height: 50rpx;
-  padding: 0;
+  width: 64rpx !important;
+  height: 64rpx !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
   margin: 0 10rpx;
+  line-height: 64rpx !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 32rpx !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  border: none !important;
+  min-width: 64rpx !important;
+}
+
+/* 减少按钮（第一个按钮） */
+.quantity-control button:first-child {
+  background-color: #f5f5f5 !important;
+  color: #d4745f !important;
+}
+
+.quantity-control button:first-child:active {
+  background-color: #e0e0e0 !important;
+  transform: scale(0.95);
+}
+
+/* 增加按钮（最后一个按钮） */
+.quantity-control button:last-child {
+  background-color: #d4745f !important;
+  color: white !important;
+}
+
+.quantity-control button:last-child:active {
+  background-color: #b85c4a !important;
+  transform: scale(0.95);
 }
 
 .quantity {

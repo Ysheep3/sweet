@@ -44,7 +44,31 @@
           <view class="product-footer">
             <text class="product-price">¥{{item.price}}</text>
 
+            <view a:if="{{item.cartQuantity > 0}}" class="quantity-control">
+              <button
+                id="decrease-btn-{{index}}"
+                class="quantity-btn decrease-btn"
+                catchTap="decreaseQuantity"
+                data-id="{{item.id}}"
+                data-type="{{item.type}}"
+                data-index="{{index}}"
+              >
+                -
+              </button>
+              <text class="quantity-text">{{item.cartQuantity}}</text>
+              <button
+                id="add-btn-{{index}}"
+                class="quantity-btn increase-btn"
+                catchTap="increaseQuantity"
+                data-id="{{item.id}}"
+                data-type="{{item.type}}"
+                data-index="{{index}}"
+              >
+                +
+              </button>
+            </view>
             <button
+              a:else
               id="add-btn-{{index}}"
               class="add-btn"
               catchTap="addToCart"
@@ -67,5 +91,44 @@
       transform: translate3d({{item.dx}}px, {{item.dy}}px, 0) scale(0.3);
     ">
     <view class="inner-ball">+1</view>
+  </view>
+
+  <!-- 底部结算导航栏 -->
+  <view class="footer-bar" a:if="{{showBottomBar}}" onTap="openCartPopup">
+    <view class="footer-left">
+      <text class="cart-info">购物车({{cartCount}})</text>
+    </view>
+    <view class="total">
+      <text>合计：</text>
+      <text class="total-price">¥{{cartTotalPrice}}</text>
+    </view>
+    <button class="submit-btn" onTap="goToCheckout">
+      <text style="color:#fff">去结算</text>
+    </button>
+  </view>
+  <!-- 遮罩 -->
+  <view a:if="{{showCartPopup}}" class="cart-mask" catchTap="closeCartPopup" />
+
+  <!-- 弹层主体 -->
+  <view class="cart-popup {{showCartPopup ? 'show' : ''}}" catchTap="noop">
+    <view class="cart-header">
+      <text>已选商品</text>
+      <text class="clear-btn" onTap="clearCart">清空</text>
+    </view>
+
+    <scroll-view scroll-y class="cart-list">
+      <view a:for="{{cartItems}}" class="cart-item" a:key="{{item.dishId || item.setmealId}}">
+        <view class="info">
+          <text class="name">{{item.name}}</text>
+          <text class="price">¥{{item.amount}}</text>
+        </view>
+
+        <view class="counter">
+          <text class="btn" onTap="popupDecrease" data-item="{{item}}">-</text>
+          <text class="num">{{item.number}}</text>
+          <text class="btn" onTap="popupIncrease" data-item="{{item}}">+</text>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 </view>

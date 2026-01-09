@@ -169,14 +169,8 @@ Page({
   // 删除商品
   deleteItem(e) {
     const {
-      dishId,
-      setmealId
+      id
     } = e.currentTarget.dataset;
-
-    const cartData = {
-      dishId: dishId,
-      setmealId: setmealId
-    };
 
     my.confirm({
       content: '确定删除该商品吗？',
@@ -186,11 +180,9 @@ Page({
           const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
 
           my.request({
-            url: `${apiBaseUrl}shopping-cart/delete`,
-            method: 'POST',
-            data: cartData,
+            url: `${apiBaseUrl}shopping-cart/${id}`,
+            method: 'DELETE',
             headers: {
-              'Content-Type': 'application/json',
               authentication: app.globalData.authentication
             },
             success: (res) => {
