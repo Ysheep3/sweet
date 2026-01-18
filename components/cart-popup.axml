@@ -1,0 +1,25 @@
+<!-- 购物车遮罩 -->
+<view a:if="{{visible}}" class="cart-mask" onTap="onClose"></view>
+
+<!-- 弹层主体 -->
+<view class="cart-popup {{visible ? 'show' : ''}}">
+  <view class="cart-header">
+    <text>已选商品</text>
+    <text class="clear-btn" onTap="onClear">清空</text>
+  </view>
+
+  <scroll-view scroll-y class="cart-list">
+    <view a:for="{{cartItems}}" a:key="id" class="cart-item">
+      <view class="info">
+        <text class="name">{{item.name}}</text>
+        <text class="price">¥{{item.amount}}</text>
+      </view>
+
+      <view class="counter">
+        <text class="btn" onTap="decrease" data-item="{{item}}">-</text>
+        <text class="num">{{item.number}}</text>
+        <text class="btn add" onTap="increase" data-item="{{item}}">+</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

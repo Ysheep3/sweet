@@ -349,6 +349,7 @@ page {
   border: none;
 }
 
+
 /* 遮罩 */
 .cart-mask {
   position: fixed;
@@ -365,43 +366,39 @@ page {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: -700rpx;
+
+  /* 👇 关键：隐藏时，完全沉到屏幕下 */
+  bottom: calc(-100vh);
+
+  max-height: calc(100vh - 120rpx);
   background: #fff;
   border-radius: 32rpx 32rpx 0 0;
   z-index: 100;
-  transition: bottom 0.3s ease;
   box-shadow: 0 -12rpx 40rpx rgba(0, 0, 0, 0.15);
   overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  transition: bottom 0.3s ease;
+
+  padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
 }
 
+/* 显示状态 */
 .cart-popup.show {
-  bottom: 0;
+  bottom: 0;   /* ⭐ 正好顶在底部结算栏上 */
 }
 
 /* 头部 */
 .cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 28rpx 32rpx;
-  font-size: 30rpx;
-  color: #333;
-  background: #fafafa;
-  border-bottom: 1rpx solid #eee;
-}
-
-.cart-header .clear-btn {
-  font-size: 26rpx;
-  color: #999;
-}
-
-.cart-header .clear-btn:active {
-  opacity: 0.6;
+  flex-shrink: 0;
 }
 
 /* 列表 */
 .cart-list {
-  height: 600rpx;
+  flex: 1;
+  overflow-y: auto;
   padding: 8rpx 0;
 }
 

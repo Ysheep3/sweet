@@ -46,6 +46,8 @@ Page({
     this.loadCartAndSync()
   },
 
+  noop() {},
+
   /* ================== 商品详情 ================== */
 
   loadProductDetail(id, type) {
@@ -240,7 +242,7 @@ Page({
       },
       success: () => {
         this.loadCartAndSync()
-        this.updateTabBarBadge()
+        app.needUpdateCartBadge = true;
       }
     })
   },
@@ -266,8 +268,8 @@ Page({
         authentication: app.globalData.authentication
       },
       success: () => {
-        this.loadCartAndSync()
-        this.updateTabBarBadge()
+        this.loadCartAndSync();
+        app.needUpdateCartBadge = true;
       }
     })
   },
@@ -338,6 +340,38 @@ Page({
     })
   },
 
+  clearCart() {
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+    my.confirm({
+      content: "确定要清空购物车吗？",
+      success: (res) => {
+        if (res.confirm) {
+          my.request({
+            url: `${apiBaseUrl}shopping-cart/clear`,
+            method: 'DELETE',
+            headers: {
+              authentication: app.globalData.authentication
+            },
+            success: () => {
+              this.loadCartAndSync((cartCount) => {
+                // ✅ 购物车空了，自动关弹层
+                if (cartCount <= 0) {
+                  this.closeCartPopup()
+                }
+              })
+            },
+            fail: (res) => {
+              my.showToast({
+                type: 'fail',
+                content: '操作失败'
+              })
+            }
+          })
+        }
+      }
+    })
+  },
 
   /* ================== 飞球 ================== */
 
@@ -371,13 +405,6 @@ Page({
   },
 
   /* ================== 其他 ================== */
-
-  updateTabBarBadge() {
-    const app = getApp()
-    if (app && app.updateTabBarBadge) {
-      app.updateTabBarBadge()
-    }
-  },
 
   goToCheckout() {
     my.navigateTo({

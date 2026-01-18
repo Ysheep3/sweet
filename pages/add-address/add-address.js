@@ -2,13 +2,13 @@ Page({
   data: {
     isEdit: false,
     form: {
-      name: "",
+      consignee: "",
       phone: "",
       province: "",
       city: "",
       district: "",
-      detail: "",
-      isDefault: false,
+      detailAddress: "",
+      isDefault: 0,
     },
     addressId: null,
     isLoading: false,
@@ -17,7 +17,10 @@ Page({
   onLoad(query) {
     // 检查是否是编辑模式
     if (query.id) {
-      this.setData({ isEdit: true, "form.id": query.id })
+      this.setData({
+        isEdit: true,
+        "form.id": query.id
+      })
       this.loadAddressData(query.id)
     } else {
       // 非编辑模式，自动获取地址
@@ -27,20 +30,26 @@ Page({
 
   // 自动获取地址信息
   autoGetAddress() {
-    this.setData({ isLoading: true })
-    
+    this.setData({
+      isLoading: true
+    })
+
     my.chooseLocation({
       success: (res) => {
         console.log('地址选择成功:', res)
-        this.setData({ isLoading: false })
-        
+        this.setData({
+          isLoading: false
+        })
+
         // 解析并填充地址信息
         this.fillAddressForm(res)
       },
       fail: (err) => {
         console.log('地址选择失败:', err)
-        this.setData({ isLoading: false })
-        
+        this.setData({
+          isLoading: false
+        })
+
         my.showToast({
           type: 'fail',
           content: '获取地址失败，请手动填写'
@@ -52,20 +61,32 @@ Page({
   // 填充地址表单
   fillAddressForm(locationData) {
     console.log('地址选择成功，接收到的数据:', locationData)
-    
+
     // 根据实际返回的数据结构提取信息（不保存经纬度，由后端处理）
-    const { provinceName, cityName, adName, address, name } = locationData
-    
-    console.log('解析出的字段:', { provinceName, cityName, adName, address, name })
-    
+    const {
+      provinceName,
+      cityName,
+      adName,
+      address,
+      name
+    } = locationData
+
+    console.log('解析出的字段:', {
+      provinceName,
+      cityName,
+      adName,
+      address,
+      name
+    })
+
     // 只保存地址文本信息，经纬度由后端通过地理编码API获取
     this.setData({
       'form.province': provinceName || '',
       'form.city': cityName || '',
       'form.district': adName || '',
-      'form.detail': address || name || '',
+      'form.detailAddress': address || name || '',
     })
-    
+
     // 显示成功提示
     my.showToast({
       type: 'success',
@@ -74,18 +95,34 @@ Page({
   },
 
   loadAddressData(addressId) {
-    // 从本地存储或API加载地址数据
-    my.getStorage({
-      key: `address_${addressId}`,
-      success: (res) => {
-        const addressData = res.data
-        this.setData({
-          form: {
-            ...this.data.form,
-            ...addressData,
-          },
-        })
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+    const id = addressId;
+    console.log(id);
+    my.request({
+      url: `${apiBaseUrl}address/${id}`,
+      method: 'GET',
+      headers: {
+        authentication: app.globalData.authentication
       },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          console.log(res.data.data);
+          const addressData = res.data.data
+          this.setData({
+            form: {
+              ...this.data.form,
+              ...addressData,
+            },
+          })
+        }
+      },
+      fail: () => {
+        my.showToast({
+          type: 'fail',
+          content: '加载地址失败'
+        })
+      }
     })
   },
 
@@ -97,9 +134,9 @@ Page({
     })
   },
 
-  handleCheckboxChange(e) {
+  handleSwitchChange(e) {
     this.setData({
-      "form.isDefault": e.detail.value,
+      "form.isDefault": e.detail.value ? 1 : 0,
     })
   },
 
@@ -111,7 +148,7 @@ Page({
   validateForm() {
     const form = this.data.form
 
-    if (!form.name.trim()) {
+    if (!form.consignee) {
       my.showToast({
         type: "fail",
         content: "请输入收货人姓名",
@@ -151,7 +188,7 @@ Page({
       return false
     }
 
-    if (!form.detail.trim()) {
+    if (!form.detailAddress.trim()) {
       my.showToast({
         type: "fail",
         content: "请输入详细地址",
@@ -166,49 +203,64 @@ Page({
     if (!this.validateForm()) {
       return
     }
-
+  
+    const app = getApp()
+    const apiBaseUrl =
+      (app.globalData && app.globalData.apiBaseUrl) ||
+      "http://localhost:8080/"
+  
     const form = this.data.form
-    const addressData = {
-      id: form.id || Date.now().toString(),
-      name: form.name,
+  
+    // 和后端 AddressDTO 对齐
+    const addressDTO = {
+      id: form.id || null,
+      consignee: form.consignee,
       phone: form.phone,
       province: form.province,
       city: form.city,
       district: form.district,
-      detail: form.detail,
+      detailAddress: form.detailAddress,
       isDefault: form.isDefault,
-      // 注意：经纬度由后端通过地理编码API获取，前端不保存
+      // 经纬度不传，由后端地理编码
     }
-
-    // 保存到本地存储（同时保存到地址列表）
-    my.setStorage({
-      key: `address_${addressData.id}`,
-      data: addressData,
-      success: () => {
-        // 同时更新地址列表
-        let addresses = my.getStorageSync({ key: "addresses" }).data || []
-        if (this.data.isEdit) {
-          // 更新现有地址
-          const index = addresses.findIndex(addr => addr.id === addressData.id)
-          if (index > -1) {
-            addresses[index] = addressData
-          } else {
-            addresses.push(addressData)
-          }
+  
+    this.setData({ isLoading: true })
+  
+    my.request({
+      url: this.data.isEdit
+        ? `${apiBaseUrl}address`
+        : `${apiBaseUrl}address`,
+      method: this.data.isEdit ? "PUT" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+        authentication: app.globalData.authentication,
+      },
+      data: addressDTO,
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          my.showToast({
+            type: "success",
+            content: this.data.isEdit ? "地址已更新" : "地址已保存",
+          })
+  
+          setTimeout(() => {
+            my.navigateBack()
+          }, 1200)
         } else {
-          // 添加新地址
-          addresses.push(addressData)
+          my.showToast({
+            type: "fail",
+            content: res.data.msg || "保存失败",
+          })
         }
-        my.setStorageSync({ key: "addresses", data: addresses })
-
+      },
+      fail: () => {
         my.showToast({
-          type: "success",
-          content: this.data.isEdit ? "地址已更新" : "地址已保存",
+          type: "fail",
+          content: "网络异常，请稍后重试",
         })
-
-        setTimeout(() => {
-          my.navigateBack()
-        }, 1500)
+      },
+      complete: () => {
+        this.setData({ isLoading: false })
       },
     })
   },

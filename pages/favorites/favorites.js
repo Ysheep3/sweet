@@ -88,12 +88,49 @@ Page({
     }
 
     // 加入购物车
+    const app = getApp()
+    const dishId = e.currentTarget.dataset.dishId
+    const setmealId = e.currentTarget.dataset.setmealId
 
+    const data =
+      dishId !== null ? {
+        dishId: dishId
+      } : {
+        setmealId: setmealId
+      }
 
-    my.showToast({
-      content: "已添加到购物车",
-      type: "success",
-      duration: 1500,
+    console.log(data);
+
+    my.request({
+      url: app.globalData.apiBaseUrl + 'shopping-cart/add',
+      method: 'POST',
+      data,
+      headers: {
+        authentication: app.globalData.authentication
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          app.needUpdateCartBadge = true;
+          my.showToast({
+            content: "已添加到购物车",
+            type: "success",
+            duration: 1500,
+          })
+        } else {
+          my.showToast({
+            content: res.data.msg,
+            type: "fail",
+            duration: 1500,
+          })
+        }
+      },
+      fail: () => {
+        my.showToast({
+          content: "网络异常",
+          type: "fail",
+          duration: 1500,
+        })
+      }
     })
   },
 

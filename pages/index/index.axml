@@ -94,7 +94,7 @@
   </view>
 
   <!-- 底部结算导航栏 -->
-  <view class="footer-bar" a:if="{{showBottomBar}}" onTap="openCartPopup">
+  <view a:if="{{showBottomBar}}" class="footer-bar" onTap="openCartPopup">
     <view class="footer-left">
       <text class="cart-info">购物车({{cartCount}})</text>
     </view>
@@ -110,7 +110,7 @@
   <view a:if="{{showCartPopup}}" class="cart-mask" catchTap="closeCartPopup" />
 
   <!-- 弹层主体 -->
-  <view class="cart-popup {{showCartPopup ? 'show' : ''}}" catchTap="noop">
+  <view class="cart-popup {{showCartPopup ? 'show' : ''}}" catchTap="noop" catchTouchMove="noop">
     <view class="cart-header">
       <text>已选商品</text>
       <text class="clear-btn" onTap="clearCart">清空</text>

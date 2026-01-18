@@ -26,9 +26,9 @@
           class="form-input"
           type="text"
           placeholder="请输入收货人姓名"
-          value="{{form.name}}"
+          value="{{form.consignee}}"
           onInput="handleInput"
-          data-field="name"
+          data-field="consignee"
           maxlength="20"
         />
       </view>
@@ -96,27 +96,21 @@
           class="form-input"
           type="text"
           placeholder="请输入街道地址、楼号、房号等"
-          value="{{form.detail}}"
+          value="{{form.detailAddress}}"
           onInput="handleInput"
-          data-field="detail"
+          data-field="detailAddress"
           maxlength="100"
         />
       </view>
     </view>
 
     <!-- 默认地址 -->
-    <view class="form-section">
-      <view class="form-group checkbox-group">
-        <label class="checkbox-label">
-          <checkbox 
-            class="form-checkbox"
-            checked="{{form.isDefault}}"
-            onChange="handleCheckboxChange"
-          />
-          <text class="checkbox-text">设为默认地址</text>
-        </label>
-      </view>
-    </view>
+    <switch
+  checked="{{form.isDefault === 1}}"
+  onChange="handleSwitchChange"
+/>
+<text class="checkbox-text">设为默认地址</text>
+
   </scroll-view>
 
   <!-- 操作按钮 -->

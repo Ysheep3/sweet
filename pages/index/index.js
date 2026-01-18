@@ -22,10 +22,16 @@ Page({
   },
 
   onShow() {
-    this.updateTabBarBadge();
     // 检查购物车状态，如果有商品则显示底部导航栏
-    this.loadCartAndSync();
+    const app = getApp()
+    if (app.needUpdateCartBadge) {
+      this.updateTabBarBadge()
+      app.needUpdateCartBadge = false
+    }
   },
+
+
+  noop() {},
 
   loadCategories() {
     const app = getApp()
@@ -771,6 +777,41 @@ Page({
             this.closeCartPopup()
           }
         })
+      }
+    })
+  },
+
+
+  clearCart() {
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+
+    my.confirm({
+      content: "确定要清空购物车吗？",
+      success: (res) => {
+        if (res.confirm) {
+          my.request({
+            url: `${apiBaseUrl}shopping-cart/clear`,
+            method: 'DELETE',
+            headers: {
+              authentication: app.globalData.authentication
+            },
+            success: () => {
+              this.loadCartAndSync((cartCount) => {
+                // ✅ 购物车空了，自动关弹层
+                if (cartCount <= 0) {
+                  this.closeCartPopup()
+                }
+              })
+            },
+            fail: (res) => {
+              my.showToast({
+                type: 'fail',
+                content: '操作失败'
+              })
+            }
+          })
+        }
       }
     })
   },
