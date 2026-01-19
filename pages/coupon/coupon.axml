@@ -2,44 +2,298 @@
   <!-- 顶部统计 -->
   <view class="summary-card">
     <view class="summary-item">
-      <text class="summary-label">可用优惠券</text>
+      <text class="summary-label">可领取</text>
+      <text class="summary-value">{{claimableCount}}</text>
+    </view>
+    <view class="summary-item">
+      <text class="summary-label">可使用</text>
       <text class="summary-value">{{availableCount}}</text>
     </view>
     <view class="summary-item">
-      <text class="summary-label">已使用 / 过期</text>
-      <text class="summary-value sub">{{usedCount}} / {{expiredCount}}</text>
+      <text class="summary-label">已使用</text>
+      <text class="summary-value sub">{{usedCount}}</text>
+    </view>
+    <view class="summary-item">
+      <text class="summary-label">已过期</text>
+      <text class="summary-value sub">{{expiredCount}}</text>
+    </view>
+  </view>
+
+  <!-- Tab切换栏 -->
+  <view class="tab-bar">
+    <view
+      class="tab-item {{currentTab === 3 ? 'active' : ''}}"
+      onTap="switchTab"
+      data-tab="3"
+    >
+      <text class="tab-text">可领取</text>
+      <view a:if="{{claimableCount > 0}}" class="tab-badge">{{claimableCount}}</view>
+    </view>
+    <view
+      class="tab-item {{currentTab === 0 ? 'active' : ''}}"
+      onTap="switchTab"
+      data-tab="0"
+    >
+      <text class="tab-text">可使用</text>
+      <view a:if="{{availableCount > 0}}" class="tab-badge">{{availableCount}}</view>
+    </view>
+    <view
+      class="tab-item {{currentTab === 1 ? 'active' : ''}}"
+      onTap="switchTab"
+      data-tab="1"
+    >
+      <text class="tab-text">已使用</text>
+    </view>
+    <view
+      class="tab-item {{currentTab === 2 ? 'active' : ''}}"
+      onTap="switchTab"
+      data-tab="2"
+    >
+      <text class="tab-text">已过期</text>
     </view>
   </view>
 
   <!-- 优惠券列表 -->
   <scroll-view class="coupon-list" scroll-y>
-    <view
-      class="coupon-card {{item.status}}"
-      a:for="{{couponList}}"
-      a:key="id"
-      data-id="{{item.id}}"
-    >
-      <view class="left">
-        <text class="amount">
-          <text class="currency">¥</text>{{item.amount}}
-        </text>
-        <text class="condition">{{item.conditionText}}</text>
-      </view>
-      <view class="right">
-        <text class="title">{{item.title}}</text>
-        <text class="time">有效期：{{item.validTime}}</text>
-        <view class="tags">
-          <text class="tag" a:for="{{item.tags}}" a:key="*this">{{item}}</text>
+    <!-- 可领取优惠券 -->
+    <block a:if="{{currentTab === 3}}">
+      <view
+        a:for="{{claimableList}}"
+        class="coupon-card claimable type-{{item.type}}"
+        a:key="id"
+        data-id="{{item.id}}"
+      >
+        <!-- 优惠券类型标签 -->
+        <view class="coupon-type-tag type-{{item.type}}">
+          <text a:if="{{item.type === 1}}">满减券</text>
+          <text a:if="{{item.type === 2}}">折扣券</text>
+          <text a:if="{{item.type === 3}}">无门槛</text>
         </view>
-        <text class="status-text" a:if="{{item.status === 'used'}}">已使用</text>
-        <text class="status-text" a:if="{{item.status === 'expired'}}">已过期</text>
+        <view class="left type-{{item.type}}">
+          <!-- 满减券显示金额 -->
+          <block a:if="{{item.type === 1}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 折扣券显示折扣 -->
+          <block a:if="{{item.type === 2}}">
+            <text class="amount discount-amount">
+              {{item.discount * 10}}
+              <text class="discount-unit">折</text>
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 无门槛券显示金额 -->
+          <block a:if="{{item.type === 3}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">无门槛使用</text>
+          </block>
+        </view>
+        <view class="right">
+          <text class="title">{{item.name}}</text>
+          <text class="time">有效期：{{item.startTime}} 至 {{item.endTime}}</text>
+          <view class="tags">
+            <text
+              a:for="{{item.tags}}"
+              a:for-item="tagItem"
+              class="tag type-{{item.type}}"
+              a:key="*this"
+            >
+              {{tagItem}}
+            </text>
+          </view>
+          <view
+            class="claim-btn type-{{item.type}}"
+            onTap="claimCoupon"
+            data-id="{{item.id}}"
+            data-item="{{item}}"
+          >
+            立即领取
+          </view>
+        </view>
       </view>
-    </view>
+      <view a:if="{{claimableList.length === 0}}" class="empty">
+        暂无可领取的优惠券
+      </view>
+    </block>
 
-    <view class="empty" a:if="{{couponList.length === 0}}">
-      暂无优惠券
-    </view>
+    <!-- 可使用优惠券 -->
+    <block a:if="{{currentTab === 0}}">
+      <view
+        a:for="{{availableList}}"
+        class="coupon-card available type-{{item.type}}"
+        a:key="id"
+        data-id="{{item.id}}"
+        onTap="useCoupon"
+      >
+        <!-- 优惠券类型标签 -->
+        <view class="coupon-type-tag type-{{item.type}}">
+          <text a:if="{{item.type === 1}}">满减券</text>
+          <text a:if="{{item.type === 2}}">折扣券</text>
+          <text a:if="{{item.type === 3}}">无门槛</text>
+        </view>
+        <view class="left type-{{item.type}}">
+          <!-- 满减券显示金额 -->
+          <block a:if="{{item.type === 1}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 折扣券显示折扣 -->
+          <block a:if="{{item.type === 2}}">
+            <text class="amount discount-amount">
+              {{item.discount * 10 }}
+              <text class="discount-unit">折</text>
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 无门槛券显示金额 -->
+          <block a:if="{{item.type === 3}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">无门槛使用</text>
+          </block>
+        </view>
+        <view class="right">
+          <text class="title">{{item.name}}</text>
+          <text class="time">有效期：{{item.startTime}} 至 {{item.endTime}}</text>
+          <view class="tags">
+            <text
+              a:for="{{item.tags}}"
+              a:for-item="tagItem"
+              class="tag type-{{item.type}}"
+              a:key="*this"
+            >
+              {{tagItem}}
+            </text>
+          </view>
+          <view class="use-btn type-{{item.type}}">去使用</view>
+        </view>
+      </view>
+      <view a:if="{{availableList.length === 0}}" class="empty">
+        暂无可使用的优惠券
+      </view>
+    </block>
+
+    <!-- 已使用优惠券 -->
+    <block a:if="{{currentTab === 1}}">
+      <view a:for="{{usedList}}" class="coupon-card used" a:key="id" data-id="{{item.id}}">
+        <!-- 优惠券类型标签 -->
+        <view class="coupon-type-tag disabled">
+          <text a:if="{{item.type === 1}}">满减券</text>
+          <text a:if="{{item.type === 2}}">折扣券</text>
+          <text a:if="{{item.type === 3}}">无门槛</text>
+        </view>
+        <view class="left">
+          <!-- 满减券显示金额 -->
+          <block a:if="{{item.type === 1}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 折扣券显示折扣 -->
+          <block a:if="{{item.type === 2}}">
+            <text class="amount discount-amount">
+              {{item.discount * 10}}
+              <text class="discount-unit">折</text>
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 无门槛券显示金额 -->
+          <block a:if="{{item.type === 3}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">无门槛使用</text>
+          </block>
+        </view>
+        <view class="right">
+          <text class="title">{{item.name}}</text>
+          <text class="time">有效期：{{item.startTime}} 至 {{item.endTime}}</text>
+          <view class="tags">
+            <text
+              a:for="{{item.tags}}"
+              a:for-item="tagItem"
+              class="tag"
+              a:key="*this"
+            >
+              {{tagItem}}
+            </text>
+          </view>
+          <view class="status-badge used-badge">已使用</view>
+        </view>
+        <view class="used-overlay"></view>
+      </view>
+      <view a:if="{{usedList.length === 0}}" class="empty">
+        暂无已使用的优惠券
+      </view>
+    </block>
+
+    <!-- 已过期优惠券 -->
+    <block a:if="{{currentTab === 2}}">
+      <view
+        a:for="{{expiredList}}"
+        class="coupon-card expired"
+        a:key="id"
+        data-id="{{item.id}}"
+      >
+        <!-- 优惠券类型标签 -->
+        <view class="coupon-type-tag disabled">
+          <text a:if="{{item.type === 1}}">满减券</text>
+          <text a:if="{{item.type === 2}}">折扣券</text>
+          <text a:if="{{item.type === 3}}">无门槛</text>
+        </view>
+        <view class="left">
+          <!-- 满减券显示金额 -->
+          <block a:if="{{item.type === 1}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 折扣券显示折扣 -->
+          <block a:if="{{item.type === 2}}">
+            <text class="amount discount-amount">
+              {{item.discount * 10}}
+              <text class="discount-unit">折</text>
+            </text>
+            <text class="condition">满{{item.conditionAmount}}元可用</text>
+          </block>
+          <!-- 无门槛券显示金额 -->
+          <block a:if="{{item.type === 3}}">
+            <text class="amount">
+              <text class="currency">¥</text>{{item.reduceAmount}}
+            </text>
+            <text class="condition">无门槛使用</text>
+          </block>
+        </view>
+        <view class="right">
+          <text class="title">{{item.name}}</text>
+          <text class="time">有效期：{{item.startTime}} 至 {{item.endTime}}</text>
+          <view class="tags">
+            <text
+              a:for="{{item.tags}}"
+              a:for-item="tagItem"
+              class="tag"
+              a:key="*this"
+            >
+              {{tagItem}}
+            </text>
+          </view>
+          <view class="status-badge expired-badge">已过期</view>
+        </view>
+        <view class="expired-overlay"></view>
+      </view>
+      <view a:if="{{expiredList.length === 0}}" class="empty">
+        暂无已过期的优惠券
+      </view>
+    </block>
   </scroll-view>
 </view>
-
-
