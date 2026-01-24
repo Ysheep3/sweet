@@ -1,17 +1,51 @@
 Page({
   data: {
     activeTab: 0,
-    tabs: [
-      { id: 0, name: "待支付", status: "pending" },
-      { id: 1, name: "已支付", status: "paid" },
-      { id: 2, name: "派送中", status: "shipping" },
-      { id: 3, name: "已完成", status: "completed" },
+    /** 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消 */
+    tabs: [{
+        id: 0,
+        name: "全部",
+        statusList: []
+      },
+      {
+        id: 1,
+        name: "待支付",
+        statusList: [1]
+      },
+      {
+        id: 2,
+        name: "进行中",
+        statusList: [2, 3, 4]
+      },
+      {
+        id: 3,
+        name: "已完成/已取消",
+        statusList: [5, 6]
+      },
     ],
     orders: [],
-    filteredOrders: [],
   },
 
-  onLoad() {
+  onLoad(options) {
+    if (options && options.status) {
+      const status = Number(options.status)
+  
+      // 根据 status 找到对应的 tab
+      const tabs = this.data.tabs
+      const targetTabIndex = tabs.findIndex(tab =>
+        tab.statusList.includes(status)
+      )
+  
+      // 找到就切换到对应 tab
+      if (targetTabIndex !== -1) {
+        this.setData({
+          activeTab: targetTabIndex
+        }, () => {
+          this.loadOrders()
+        })
+        return
+      }
+    }
     this.loadOrders()
   },
 
@@ -21,51 +55,80 @@ Page({
 
   // 加载订单
   loadOrders() {
-    const orders = my.getStorageSync({ key: "orders" }).data || []
-    this.setData({ orders })
-    this.filterOrders()
+    const {
+      tabs,
+      activeTab
+    } = this.data
+    const statusList = tabs[activeTab].statusList
+
+    my.showLoading({
+      content: '加载中...'
+    })
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+
+    my.request({
+      url: `${apiBaseUrl}order/user/listByStatus`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        authentication: app.globalData.authentication,
+      },
+      data: statusList, // [] 或 [1] / [2,3,4] / [5,6]
+  
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          const orders = res.data.data || []
+          console.log("orders:", orders);
+          this.setData({
+            orders: orders,
+          })
+        } else {
+          my.showToast({
+            content: res.data.msg || '获取订单失败',
+            type: 'none',
+          })
+        }
+      },
+      fail: () => {
+        my.showToast({
+          content: '网络异常',
+          type: 'none',
+        })
+      },
+      complete: () => {
+        my.hideLoading()
+      },
+    })
   },
 
   // 切换标签
   switchTab(e) {
     const tabId = e.currentTarget.dataset.id
-    this.setData({ activeTab: tabId })
-    this.filterOrders()
-  },
-
-  // 筛选订单
-  filterOrders() {
-    const { orders, tabs, activeTab } = this.data
-    const status = tabs[activeTab].status
-    const filtered = orders.filter((order) => order.status === status)
-    this.setData({ filteredOrders: filtered })
+    this.setData({
+      activeTab: tabId
+    }, () => {
+      this.loadOrders();
+    });
   },
 
   // 继续支付
   continuePay(e) {
-    const orderId = e.currentTarget.dataset.id
-    my.showLoading({ content: "处理中..." })
-
-    // 模拟支付流程
+    const orderNo = e.currentTarget.dataset.orderNo;
+  
+    my.showLoading({
+      content: "处理中..."
+    });
+  
     setTimeout(() => {
-      // 更新订单状态
-      const orders = this.data.orders
-      const order = orders.find((o) => o.id === orderId)
-      if (order) {
-        order.status = "paid"
-        my.setStorageSync({
-          key: "orders",
-          data: orders,
-        })
-        this.loadOrders()
-      }
-
-      my.hideLoading()
-      my.showToast({
-        content: "支付成功",
-        type: "success",
-      })
-    }, 1500)
+      my.hideLoading();
+  
+      // 👉 跳转到结算页面，携带订单号
+      my.navigateTo({
+        url: `/pages/checkout/checkout?orderNo=${orderNo}`
+      });
+  
+    }, 300);
   },
 
   // 催单

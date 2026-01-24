@@ -1,0 +1,216 @@
+/* 页面容器 */
+.pay-success-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1677FF 0%, #1677FF 400rpx, #F5F5F5 240rpx, #F5F5F5 100%);
+  padding-bottom: calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* ========== 顶部状态区域 ========== */
+.status-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 72rpx;     /* 稍微压低一点 */
+  padding-bottom: 64rpx;
+}
+
+/* 成功图标 */
+.success-icon {
+  margin-bottom: 32rpx;
+}
+
+.icon-circle {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 勾选动画 */
+.checkmark {
+  width: 44rpx;
+  height: 26rpx;
+  border-left: 6rpx solid #1677FF;
+  border-bottom: 6rpx solid #1677FF;
+  transform: rotate(-45deg);
+  animation: checkmark-pop 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes checkmark-pop {
+  from {
+    transform: rotate(-45deg) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(-45deg) scale(1);
+    opacity: 1;
+  }
+}
+
+
+/* 支付成功文字 */
+.status-text {
+  font-size: 28rpx;        /* 从 40 → 28 */
+  font-weight: 500;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 12rpx;
+}
+
+
+/* 金额区域 */
+.amount-wrapper {
+  display: flex;
+  align-items: baseline;
+  margin-top: 4rpx;
+}
+
+.currency {
+  color: #FFFFFF;
+  font-size: 44rpx;        /* ¥ 稍微大一点 */
+  font-weight: 500;
+  margin-right: 6rpx;
+}
+
+.amount {
+  color: #FFFFFF;
+  font-size: 88rpx;        /* 从 72 → 88 */
+  font-weight: 600;
+  letter-spacing: -2rpx;
+  line-height: 1;
+}
+
+
+/* ========== 订单信息卡片 ========== */
+.order-card {
+  margin: 0 32rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.05);
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.card-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #AAAAAA;
+}
+
+.value {
+  font-size: 26rpx;
+  color: #333333;
+}
+
+
+/* ========== 底部操作区域 ========== */
+.action-section {
+  margin: 48rpx 32rpx 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.btn-primary {
+  height: 96rpx;
+  line-height: 96rpx;
+  text-align: center;
+  background: #1677FF;
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 48rpx;
+  box-shadow: 0 8rpx 24rpx rgba(22, 119, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background: #F7F7F7;
+  color: #1677FF;
+  border: none;
+}
+
+.btn-secondary:active {
+  background: #F0F7FF;
+}
+
+/* ========== 底部安全提示 ========== */
+.security-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 60rpx;
+  padding-bottom: 40rpx;
+}
+
+.shield-icon {
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 8rpx;
+}
+
+.security-text {
+  font-size: 24rpx;
+  color: #999999;
+}
+
+/* ========== 入场动画 ========== */
+.status-section {
+  animation: fadeInDown 0.4s ease-out;
+}
+
+.order-card {
+  animation: fadeInUp 0.4s ease-out 0.15s both;
+}
+
+.action-section {
+  animation: fadeInUp 0.4s ease-out 0.25s both;
+}
+
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auto-back-text {
+  margin-top: 24rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+}

@@ -4,9 +4,10 @@
   </view>
 
   <scroll-view class="address-list" scroll-y>
-    <view 
-      class="address-item"
+    <view
       a:for="{{addresses}}"
+      a:for-item="item"
+      class="address-item"
       a:key="id"
       onTap="selectAddress"
       data-id="{{item.id}}"
@@ -18,18 +19,28 @@
             <text class="receiver-phone">{{item.phone}}</text>
           </view>
           <view class="address-actions" catchtap="true">
-            <text class="action-btn edit-btn" onTap="editAddress" data-id="{{item.id}}">编辑</text>
-            <text class="action-btn delete-btn" onTap="deleteAddress" data-id="{{item.id}}">删除</text>
+            <text class="action-btn edit-btn" onTap="editAddress" data-id="{{item.id}}">
+              编辑
+            </text>
+            <text
+              class="action-btn delete-btn"
+              onTap="deleteAddress"
+              data-id="{{item.id}}"
+            >
+              删除
+            </text>
           </view>
         </view>
         <view class="address-detail-text">
           <text class="location-icon">📍</text>
-          <text class="detail-text">{{item.province}}{{item.city}}{{item.district}}{{item.detail}}</text>
+          <text class="detail-text">
+            {{item.province}}{{item.city}}{{item.district}}{{item.detail}}
+          </text>
         </view>
       </view>
     </view>
 
-    <view class="empty-state" a:if="{{addresses.length === 0}}">
+    <view a:if="{{addresses.length === 0}}" class="empty-state">
       <text class="empty-icon">📭</text>
       <text class="empty-text">暂无地址</text>
       <text class="empty-desc">点击下方按钮添加您的收货地址</text>

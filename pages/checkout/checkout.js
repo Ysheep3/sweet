@@ -1,185 +1,405 @@
 Page({
   data: {
+    // 订单类型：0 堂食, 1 外送
+    orderType: 1,
+    orderNo: '',
+    tableNumber: '',
+    selectedAddress: null,
     cartItems: [],
     totalCount: 0,
-    goodsAmount: '0.00',
-    deliveryFee: '3.00',
-    discountAmount: '0.00',
-    payAmount: '0.00',
-    selectedAddress: null,
-    couponList: [],
-    availableCoupons: [],
+    goodsAmount: 0,
+    deliveryFee: 3,
+    discountAmount: 0,
+    payAmount: 0,
+    remark: '',
     selectedCoupon: null,
-    pendingCouponId: null,
-    availableCouponCount: 0,
+    availableList: [],
+    availableCount: 0,
     showCouponPopup: false,
-    remark: ''
+    pendingCouponId: null,
+
+    // ========== 收银台相关 ==========
+    // 是否显示收银台
+    showCashier: false,
+    // 花呗优惠
+    huabeiPromo: '分期免息',
   },
 
-  onLoad() {
-    this.loadCart();
-    this.loadAddress();
+  onLoad(options = {}) {
+    const { orderNo } = options;   // ✅ 在函数最外层解构
+  
+    if (orderNo) {
+      this.setData({ orderNo });
+    }
+  
+    // 统一入口：有 orderNo → 查订单；没有 → 查购物车
+    this.loadCheckoutData(orderNo);
+  
     this.loadCoupons();
-    this.calcAmount();
+    this.loadDefaultAddress();
   },
+  
 
   onShow() {
-    this.loadCart();
-    this.loadAddress();
-    this.loadCoupons();
-    this.calcAmount();
+    const selectedRes = my.getStorageSync({
+      key: 'selectedAddress'
+    });
+    console.log("selectedRes: ", selectedRes);
+    if (selectedRes && selectedRes.data) {
+      this.setData({
+        selectedAddress: selectedRes.data
+      });
+      return;
+    }
+
+    this.loadCartItems();
+    // 页面显示时重新计算价格
+    this.calculatePrice();
   },
 
-  // 加载购物车
-  loadCart() {
-    // 优先使用结算页专用的 checkoutItems（来自购物车勾选）
-    const checkoutItems =
-      my.getStorageSync({ key: 'checkoutItems' }).data || null;
-    const cart = checkoutItems || my.getStorageSync({ key: 'cart' }).data || [];
-    const goodsAmount = cart.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-
+  // 切换订单类型
+  switchOrderType(e) {
+    const type = Number(e.currentTarget.dataset.type);
     this.setData({
-      cartItems: cart,
-      goodsAmount: goodsAmount.toFixed(2),
-      totalCount
+      orderType: type
+    });
+    // 重新计算价格（堂食无配送费）
+    this.calculatePrice();
+  },
+
+  // 桌号输入
+  onTableInput(e) {
+    this.setData({
+      tableNumber: e.detail.value
     });
   },
 
-  // 加载地址
-  loadAddress() {
-    const address = my.getStorageSync({ key: 'selectedAddress' }).data;
-    this.setData({ selectedAddress: address || null });
+  // 加载购物车数据
+  loadCheckoutData(orderNo) {
+    const app = getApp();
+    const apiBaseUrl = app.globalData.apiBaseUrl || 'http://localhost:8080/';
+
+    // 👉 有订单号：走订单详情（继续支付）
+    if (orderNo) {
+      console.log('load order detail:', orderNo);
+
+      my.request({
+        url: `${apiBaseUrl}order/user/detail/${orderNo}`,
+        method: 'GET',
+        headers: {
+          authentication: app.globalData.authentication
+        },
+        success: (res) => {
+          if (res.data && res.data.code === 1) {
+            const cartItems = res.data.data.orderDetails || [];
+            this.processCartItems(cartItems);
+          } else {
+            my.showToast({
+              type: 'fail',
+              content: '获取订单详情失败'
+            });
+          }
+        },
+        fail: () => {
+          my.showToast({
+            type: 'fail',
+            content: '网络异常'
+          });
+        }
+      });
+
+      return;
+    }
+
+    // 👉 没订单号：走购物车（新下单）
+    my.request({
+      url: apiBaseUrl + 'shopping-cart/list',
+      method: 'GET',
+      headers: {
+        authentication: app.globalData.authentication
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          const cartItems = res.data.data || [];
+          this.processCartItems(cartItems);
+        } else {
+          my.showToast({
+            type: 'fail',
+            content: '获取购物车失败'
+          });
+        }
+      },
+      fail: () => {
+        my.showToast({
+          type: 'fail',
+          content: '网络异常'
+        });
+      }
+    });
   },
 
-  // 加载优惠券（与优惠券管理页面共用同一份数据）
+  processCartItems(cartItems = []) {
+    let totalCount = 0;
+    let goodsAmount = 0;
+
+    cartItems.forEach(item => {
+      totalCount += item.number || 0;
+      goodsAmount += (item.amount || 0) * (item.number || 0);
+    });
+
+    this.setData({
+      cartItems,
+      totalCount,
+      goodsAmount: goodsAmount.toFixed(2)
+    }, () => {
+      this.calculatePrice();
+    });
+  },
+
+
+  // 加载可用优惠券
   loadCoupons() {
-    let coupons = my.getStorageSync({ key: 'coupons' }).data || [];
-    const availableCoupons = coupons.filter(c => c.status === 'available');
-    const availableCouponCount = availableCoupons.length;
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+    //const status = this.data.currentTab === 3 ? 0 : this.data.currentTab;
+    const status = 0;
 
-    // 当前已选优惠券 id
-    const selectedCouponId =
-      my.getStorageSync({ key: 'selectedCouponId' }).data || null;
-    const selectedCoupon =
-      coupons.find(c => c.id === selectedCouponId && c.status === 'available') ||
-      null;
+    my.request({
+      url: `${apiBaseUrl}user-coupon/user/list/${status}`,
+      method: 'GET',
+      headers: {
+        authentication: app.globalData.authentication
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          console.log("availableList", res.data.data);
+          const availableList = res.data.data || [];
+          const goodsAmount = this.data.goodsAmount
 
-    this.setData({
-      couponList: coupons,
-      availableCouponCount,
-      availableCoupons,
-      selectedCoupon,
-      pendingCouponId: selectedCoupon ? selectedCoupon.id : null
-    });
+          const availableCount = this.calcAvailableCount(goodsAmount, availableList)
+
+          this.setData({
+            availableList,
+            availableCount
+          })
+        } else {
+          my.showToast({
+            type: 'fail',
+            content: res.data.msg
+          })
+        }
+      },
+      fail: () => {
+        my.showToast({
+          type: 'fail',
+          content: "网络异常"
+        })
+      }
+    })
+  },
+
+  // 加载默认地址
+  loadDefaultAddress() {
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+
+    my.request({
+      url: `${apiBaseUrl}address/default`,
+      method: 'GET',
+      headers: {
+        authentication: app.globalData.authentication
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          console.log(res.data.data);
+          const defaultAddress = res.data.data;
+          this.setData({
+            selectedAddress: defaultAddress
+          })
+        } else {
+          my.showToast({
+            type: 'fail',
+            content: res.data.msg
+          })
+        }
+      },
+      fail: () => {
+        my.showToast({
+          type: 'fail',
+          content: '网络异常'
+        })
+      }
+    })
   },
 
   // 选择地址
   selectAddress() {
     my.navigateTo({
-      url: '/pages/address/address?select=true'
+      url: '/pages/address/address?select=1'
     });
   },
 
-  // 打开优惠券选择弹窗
-  chooseCoupon() {
-    if (this.data.availableCoupons.length === 0) {
-      my.showToast({
-        content: '暂无可用优惠券',
-        type: 'none'
-      });
-      return;
+  // 计算当前金额下可用优惠券数量
+  calcAvailableCount(goodsAmount, couponList) {
+    return couponList.filter(item => {
+      // 无门槛券，永远可用
+      if (item.type === 3) return true
+
+      // 满减券 / 折扣券，需要满足金额
+      return parseFloat(goodsAmount) >= item.conditionAmount
+    }).length
+  },
+
+  // 计算价格
+  calculatePrice() {
+    const {
+      goodsAmount,
+      deliveryFee,
+      selectedCoupon,
+      orderType,
+      availableList
+    } = this.data;
+
+    let discount = 0;
+    const goodsPrice = parseFloat(goodsAmount);
+
+    // 计算优惠金额
+    if (selectedCoupon) {
+      const {
+        type,
+        conditionAmount,
+        reduceAmount,
+        discount: discountRate
+      } = selectedCoupon;
+
+      // 是否满足使用条件（无门槛券默认满足）
+      const canUse =
+        type === 3 || goodsPrice >= conditionAmount;
+
+      if (canUse) {
+        // 满减券
+        if (type === 1) {
+          discount = reduceAmount;
+        }
+
+        // 折扣券
+        if (type === 2) {
+          const afterDiscount = goodsPrice * discountRate;
+          console.log(afterDiscount, goodsPrice, discountRate);
+          discount = goodsPrice - afterDiscount;
+        }
+
+        // 无门槛券
+        if (type === 3) {
+          discount = reduceAmount;
+        }
+      }
     }
 
+    // 堂食无配送费
+    const actualDeliveryFee = orderType === 1 ? deliveryFee : 0;
+
+    const payAmount = (
+      goodsPrice +
+      actualDeliveryFee -
+      discount
+    ).toFixed(2);
+
+    // 同步更新可用优惠券数量（修复你刚才那个 bug）
+    const availableCount = this.calcAvailableCount(
+      goodsPrice,
+      availableList
+    );
+
+    this.setData({
+      discountAmount: discount.toFixed(2),
+      payAmount: Math.max(0, payAmount),
+      availableCount
+    });
+  },
+
+
+  // 打开优惠券选择
+  chooseCoupon() {
     this.setData({
       showCouponPopup: true,
-      pendingCouponId: this.data.selectedCoupon
-        ? this.data.selectedCoupon.id
-        : null
+      pendingCouponId: this.data.selectedCoupon ? this.data.selectedCoupon.id : null
     });
   },
 
   // 关闭优惠券弹窗
   closeCouponPopup() {
-    this.setData({ showCouponPopup: false });
+    this.setData({
+      showCouponPopup: false
+    });
   },
 
-  // 选择某张优惠券
+  // 选择优惠券
   selectCoupon(e) {
-    const { id } = e.currentTarget.dataset;
-    this.setData({ pendingCouponId: Number(id) });
-  },
-
-  // 不使用优惠券
-  clearCoupon() {
-    my.removeStorageSync({ key: 'selectedCouponId' });
-    this.setData(
-      {
-        selectedCoupon: null,
-        pendingCouponId: null,
-        showCouponPopup: false
-      },
-      () => {
-        this.calcAmount();
-      }
-    );
+    const id = e.currentTarget.dataset.id;
+    this.setData({
+      pendingCouponId: id
+    });
   },
 
   // 确认使用优惠券
   confirmCoupon() {
-    const coupon =
-      this.data.availableCoupons.find(c => c.id === this.data.pendingCouponId) ||
-      null;
+    const {
+      pendingCouponId,
+      availableList
+    } = this.data;
+    const coupon = availableList.find(c => c.id == pendingCouponId);
 
-    if (coupon) {
-      my.setStorageSync({ key: 'selectedCouponId', data: coupon.id });
-    } else {
-      my.removeStorageSync({ key: 'selectedCouponId' });
+    if (
+      coupon &&
+      coupon.type !== 3 &&
+      parseFloat(this.data.goodsAmount) < coupon.conditionAmount
+    ) {
+      my.showToast({
+        type: 'fail',
+        content: '该优惠券未满足使用条件'
+      })
+      return
     }
 
-    this.setData(
-      {
-        selectedCoupon: coupon,
-        showCouponPopup: false
-      },
-      () => {
-        this.calcAmount();
-      }
-    );
+
+    this.setData({
+      selectedCoupon: coupon || null,
+      showCouponPopup: false
+    });
+
+    this.calculatePrice();
+  },
+
+  // 不使用优惠券
+  clearCoupon() {
+    this.setData({
+      selectedCoupon: null,
+      pendingCouponId: null,
+      showCouponPopup: false
+    });
+    this.calculatePrice();
   },
 
   // 备注输入
   onRemarkInput(e) {
-    this.setData({ remark: e.detail.value });
-  },
-
-  // 计算金额
-  calcAmount() {
-    const goodsAmount = Number(this.data.goodsAmount) || 0;
-    const deliveryFee = Number(this.data.deliveryFee) || 0;
-    let discountAmount = 0;
-
-    if (this.data.selectedCoupon) {
-      discountAmount = this.data.selectedCoupon.amount || 0;
-      if (discountAmount > goodsAmount) {
-        discountAmount = goodsAmount;
-      }
-    }
-
-    const payAmount = goodsAmount + deliveryFee - discountAmount;
-
     this.setData({
-      discountAmount: discountAmount.toFixed(2),
-      payAmount: payAmount.toFixed(2)
+      remark: e.detail.value
     });
   },
 
   // 提交订单
   submitOrder() {
-    if (this.data.cartItems.length === 0) {
+    const {
+      orderType,
+      selectedAddress,
+      tableNumber,
+      cartItems,
+      payAmount
+    } = this.data;
+
+    // 校验
+    if (cartItems.length === 0) {
       my.showToast({
         content: '购物车为空',
         type: 'fail'
@@ -187,7 +407,7 @@ Page({
       return;
     }
 
-    if (!this.data.selectedAddress) {
+    if (orderType === 1 && !selectedAddress) {
       my.showToast({
         content: '请选择收货地址',
         type: 'fail'
@@ -195,72 +415,161 @@ Page({
       return;
     }
 
-    // 客户位置由后端通过地理编码API获取，前端只保存地址文本
-    const customerAddress = this.data.selectedAddress ? 
-      `${this.data.selectedAddress.province}${this.data.selectedAddress.city}${this.data.selectedAddress.district}${this.data.selectedAddress.detail}` : '';
-
-    const order = {
-      id: Date.now(),
-      items: this.data.cartItems,
-      address: this.data.selectedAddress,
-      // customerLocation 由后端处理，前端不设置
-      customerName: this.data.selectedAddress ? this.data.selectedAddress.name : '',
-      customerPhone: this.data.selectedAddress ? this.data.selectedAddress.phone : '',
-      customerAddress: customerAddress,
-      goodsAmount: this.data.goodsAmount,
-      deliveryFee: this.data.deliveryFee,
-      discountAmount: this.data.discountAmount,
-      payAmount: this.data.payAmount,
-      couponId: this.data.selectedCoupon ? this.data.selectedCoupon.id : null,
-      remark: this.data.remark,
-      status: 'pending',
-      createTime: new Date().toISOString()
-    };
-
-    let orders = my.getStorageSync({ key: 'orders' }).data || [];
-    orders.unshift(order);
-    my.setStorageSync({ key: 'orders', data: orders });
-
-    // 同时将订单添加到骑手订单列表（供骑手端使用）
-    // 注意：customerLocation 应该由后端通过地理编码API获取后返回
-    let riderOrders = my.getStorageSync({ key: 'riderOrders' }).data || [];
-    const riderOrder = {
-      id: 'D' + order.id,
-      status: 'pending',
-      statusText: '待接单',
-      customerName: order.customerName,
-      customerPhone: order.customerPhone,
-      customerAddress: order.customerAddress,
-      customerLocation: null, // 由后端填充，前端不设置
-      amount: order.payAmount,
-      createTime: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
-      shopLocation: { latitude: 23.128, longitude: 113.262 } // 店铺位置（固定）
-    };
-    riderOrders.unshift(riderOrder);
-    my.setStorageSync({ key: 'riderOrders', data: riderOrders });
-
-    // 清空购物车与已选优惠券、结算临时数据
-    my.removeStorageSync({ key: 'cart' });
-    my.removeStorageSync({ key: 'selectedCouponId' });
-    my.removeStorageSync({ key: 'checkoutItems' });
-
-    // 更新 tabBar 徽章
-    const app = getApp();
-    if (app && app.updateTabBarBadge) {
-      app.updateTabBarBadge();
+    if (orderType === 0 && !tableNumber.trim()) {
+      my.showToast({
+        content: '请输入桌号',
+        type: 'fail'
+      });
+      return;
     }
 
-    my.showToast({
-      content: '订单提交成功',
-      type: 'success'
+    // 组装订单数据
+    const orderData = {
+      orderType,
+      tableNumber: orderType === 0 ? tableNumber : '',
+      addressId: orderType === 1 ? selectedAddress.id : null,
+      cartItems: cartItems,
+      amount: payAmount,
+      remark: this.data.remark,
+      userCoupon: this.data.selectedCoupon,
+      consignee: orderType === 1 ? selectedAddress.consignee : null,
+      phone: orderType === 1 ? selectedAddress.phone : null,
+      address: orderType === 1 ? selectedAddress.province +
+        selectedAddress.city +
+        selectedAddress.district +
+        selectedAddress.detailAddress : null,
+
+    };
+
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+
+    my.request({
+      url: `${apiBaseUrl}order/user/submit`,
+      method: 'POST',
+      data: orderData,
+      headers: {
+        'Content-Type': 'application/json',
+        authentication: app.globalData.authentication
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+
+          this.data.orderNo = res.data.data.orderNo
+          this.data.payAmount = res.data.data.orderAmount
+
+          my.showLoading({
+            content: '正在拉起支付...'
+          })
+
+          // 打开收银台弹层
+          setTimeout(() => {
+            my.hideLoading();
+
+            this.setData({
+              showCashier: true
+            });
+          }, 1500);
+
+        } else {
+          my.showToast({
+            content: res.data.msg || '提交订单失败',
+            type: 'fail'
+          })
+        }
+      },
+      fail: () => {
+        my.showToast({
+          content: '网络异常',
+          type: 'fail'
+        })
+      }
+    })
+  },
+
+  // ========== 关闭收银台 ==========
+  handleCancelPay() {
+    // 1️⃣ 先关闭收银台
+    this.setData({
+      showCashier: false
     });
 
+    // 2️⃣ 再跳转订单页，携带 status=1
     setTimeout(() => {
-      my.navigateTo({
-        url: '/pages/order/order'
+      my.redirectTo({
+        url: '/pages/order/order?status=1'
       });
-    }, 1500);
+    }, 0);
+  },
+  // ========== 处理支付 ==========
+  handlePay(e) {
+    const {
+      amount,
+      paymentMethod,
+      complete
+    } = e;
+    const {
+      payAmount,
+      orderNo
+    } = this.data;
+
+    // 这里调用实际的订单提交和支付接口
+    my.showLoading({
+      content: '支付中...'
+    });
+
+    const app = getApp();
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || 'http://localhost:8080/';
+
+    const orderPayData = {
+      orderNo: orderNo,
+      amount: payAmount,
+    };
+
+    setTimeout(() => {
+      my.hideLoading();
+      my.request({
+        url: `${apiBaseUrl}order/user/pay`,
+        method: 'POST',
+        data: orderPayData,
+        headers: {
+          'Content-Type': 'application/json',
+          authentication: app.globalData.authentication,
+        },
+        success: (res) => {
+
+          if (res.data && res.data.code === 1) {
+            // 通知组件支付完成
+            complete(true);
+
+            // 关闭收银台
+            this.setData({
+              showCashier: false
+            });
+
+            // 跳转到支付成功页面
+            my.redirectTo({
+              url: `/pages/pay-success/pay-success?amount=${payAmount}&orderNo=${orderNo}&paymentMethod=${paymentMethod}`,
+            });
+          } else {
+            my.showToast({
+              type: 'fail',
+              content: res.data.msg || '支付失败，请重试',
+              duration: 2000,
+            });
+            complete(false);
+          }
+        },
+        fail: () => {
+          my.hideLoading();
+          my.showToast({
+            type: 'fail',
+            content: '网络异常',
+            duration: 2000,
+          });
+          complete(false);
+        },
+      });
+    }, 2000);
   }
-});
-
-
+})

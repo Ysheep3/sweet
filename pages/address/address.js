@@ -5,7 +5,7 @@ Page({
   },
 
   onLoad(options) {
-    if (options.select === "true") {
+    if (options.select) {
       this.setData({
         isSelectMode: true
       })
@@ -16,7 +16,7 @@ Page({
   onShow() {
     this.loadAddresses();
   },
-  
+
   // 加载地址列表
   loadAddresses() {
     const app = getApp()
@@ -96,5 +96,28 @@ Page({
         }
       }
     })
+  },
+  // 选择地址（只在选择模式下生效）
+  selectAddress(e) {
+    if (!this.data.isSelectMode) return;
+  
+    const id = e.currentTarget.dataset.id;
+  
+    const address = this.data.addresses.find(item => item.id == id);
+  
+    if (!address) {
+      console.warn('未找到地址，id:', id);
+      return;
+    }
+  
+    console.log('选中的地址:', address);
+  
+    my.setStorageSync({
+      key: 'selectedAddress',
+      data: address
+    });
+  
+    my.navigateBack();
   }
+
 })

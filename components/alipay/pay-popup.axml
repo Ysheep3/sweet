@@ -1,0 +1,91 @@
+<!-- 收银台弹层 -->
+<view a:if="{{visible}}" class="cashier-popup" onTouchMove="noop">
+
+  <!-- 遮罩 -->
+  <view 
+    class="cashier-mask" 
+    onTap="onMaskTap"
+  ></view>
+
+  <!-- 面板 -->
+  <view class="cashier-panel">
+
+    <!-- 头部 -->
+    <view class="cashier-header">
+      <view class="header-close" onTap="onClose">
+        <view class="close-icon"></view>
+      </view>
+
+      <view class="header-title">
+        <image class="alipay-logo" src="/image/icon/alipay-logo.png" />
+        <text class="title-text">收银台</text>
+      </view>
+
+      <view class="header-placeholder"></view>
+    </view>
+
+    <!-- 金额 -->
+    <view class="amount-section">
+      <view class="amount-label">付款金额</view>
+      <view class="amount-value">
+        <text class="currency">¥</text>
+        <text class="amount-num">{{amount}}</text>
+      </view>
+      <text class="merchant-name">{{merchantName}}</text>
+    </view>
+
+    <!-- 支付方式 -->
+    <view class="payment-section">
+      <view class="section-title">选择付款方式</view>
+
+      <view
+        class="payment-item {{paymentMethod==='balance'?'selected':''}}"
+        data-method="balance"
+        onTap="selectPayment"
+      >
+        <view class="item-left">
+          <view class="pay-icon balance-icon"></view>
+          <view class="pay-info">
+            <text class="pay-name">账户余额</text>
+          </view>
+        </view>
+        <view class="radio-circle {{paymentMethod==='balance'?'checked':''}}">
+          <view a:if="{{paymentMethod==='balance'}}" class="radio-dot"></view>
+        </view>
+      </view>
+
+      <view
+        class="payment-item {{paymentMethod==='huabei'?'selected':''}}"
+        data-method="huabei"
+        onTap="selectPayment"
+      >
+        <view class="item-left">
+          <view class="pay-icon huabei-icon"></view>
+          <view class="pay-info">
+            <text class="pay-name">花呗</text>
+          </view>
+        </view>
+        <view class="radio-circle {{paymentMethod==='huabei'?'checked':''}}">
+          <view a:if="{{paymentMethod==='huabei'}}" class="radio-dot"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 确认支付 -->
+    <view class="pay-button-section">
+      <button
+        class="pay-button"
+        loading="{{paying}}"
+        disabled="{{paying}}"
+        onTap="confirmPay"
+      >
+        <text>{{ paying ? '支付处理中...' : '确认付款' }}</text>
+      </button>
+    </view>
+
+    <view class="security-footer">
+      <view class="security-icon"></view>
+      <text class="security-text">支付宝安全支付</text>
+    </view>
+  </view>
+</view>

@@ -28,8 +28,16 @@ Page({
       this.updateTabBarBadge()
       app.needUpdateCartBadge = false
     }
+    
+    if (app.loadCart) {
+      this.loadCartAndSync();
+      this.setData({
+        showCartPopup: false
+      })
+      app.loadCart = false
+    }
+    //this.loadCartAndSync();
   },
-
 
   noop() {},
 
@@ -686,7 +694,7 @@ Page({
       success: (res) => {
         if (res && res.data && res.data.code === 1) {
           const cartItems = res.data.data || []
-
+          console.log("cartItems:", cartItems);
           // 1️⃣ 同步商品列表数量（关键）
           this.syncCartToProducts(cartItems)
 

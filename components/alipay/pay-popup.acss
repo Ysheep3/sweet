@@ -1,0 +1,385 @@
+/* ========== 收银台弹层容器 ========== */
+.cashier-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.cashier-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.cashier-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ========== 头部 ========== */
+.cashier-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 32rpx 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.header-close {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-icon {
+  width: 32rpx;
+  height: 32rpx;
+  position: relative;
+}
+
+.close-icon::before,
+.close-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 28rpx;
+  height: 3rpx;
+  background: #999;
+  border-radius: 2rpx;
+}
+
+.close-icon::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close-icon::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.alipay-logo {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.title-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.header-placeholder {
+  width: 60rpx;
+}
+
+/* ========== 金额区域 ========== */
+.amount-section {
+  padding: 48rpx 32rpx 40rpx;
+  text-align: center;
+  background: linear-gradient(180deg, #fff 0%, #fafbfc 100%);
+}
+
+.amount-label {
+  font-size: 26rpx;
+  color: #999;
+  margin-bottom: 16rpx;
+}
+
+.amount-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.currency {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+  margin-right: 4rpx;
+}
+
+.amount-num {
+  font-size: 72rpx;
+  font-weight: 700;
+  color: #333;
+  font-family: 'DIN Alternate', 'Helvetica Neue', sans-serif;
+  letter-spacing: -2rpx;
+}
+
+.merchant-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.merchant-name {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* ========== 支付方式 ========== */
+.payment-section {
+  padding: 0 32rpx;
+}
+
+.section-title {
+  font-size: 26rpx;
+  color: #999;
+  padding: 24rpx 0 16rpx;
+}
+
+.payment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+  transition: all 0.2s ease;
+}
+
+.payment-item:active {
+  background: #f9f9f9;
+  margin: 0 -32rpx;
+  padding: 28rpx 32rpx;
+}
+
+.payment-item.selected {
+  background: #f0f9ff;
+  margin: 0 -32rpx;
+  padding: 28rpx 32rpx;
+  border-radius: 16rpx;
+}
+
+.item-left {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.pay-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  flex-shrink: 0;
+}
+
+/* 余额图标 - 蓝色钱包 */
+.balance-icon {
+  background: linear-gradient(135deg, #1677ff, #4096ff);
+  position: relative;
+}
+
+.balance-icon::after {
+  content: '¥';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+/* 花呗图标 - 橙红色 */
+.huabei-icon {
+  background: linear-gradient(135deg, #ff6b35, #ff8f65);
+  position: relative;
+}
+
+.huabei-icon::after {
+  content: '花';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+/* 银行卡图标 - 深蓝色 */
+.bank-icon {
+  background: linear-gradient(135deg, #2b5caa, #4a7cc9);
+  position: relative;
+}
+
+.bank-icon::after {
+  content: '卡';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.pay-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.pay-name {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.pay-desc {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.item-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.promo-tag {
+  padding: 4rpx 12rpx;
+  background: linear-gradient(135deg, #ff6b35, #ff8f65);
+  color: #fff;
+  font-size: 20rpx;
+  border-radius: 6rpx;
+}
+
+/* 单选圆圈 */
+.radio-circle {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.radio-circle.checked {
+  border-color: #1677ff;
+  background: #1677ff;
+}
+
+.radio-dot {
+  width: 16rpx;
+  height: 16rpx;
+  background: #fff;
+  border-radius: 50%;
+}
+
+/* 更多付款方式 */
+.more-payment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28rpx 0;
+  gap: 8rpx;
+}
+
+.more-text {
+  font-size: 26rpx;
+  color: #1677ff;
+}
+
+.more-arrow {
+  width: 12rpx;
+  height: 12rpx;
+  border-right: 3rpx solid #1677ff;
+  border-bottom: 3rpx solid #1677ff;
+  transform: rotate(-45deg);
+}
+
+/* ========== 支付按钮 ========== */
+.pay-button-section {
+  padding: 32rpx;
+}
+
+.pay-button {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: linear-gradient(135deg, #1677ff, #4096ff);
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 600;
+  border-radius: 48rpx;
+  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(22, 119, 255, 0.3);
+}
+
+.pay-button::after {
+  border: none;
+}
+
+.pay-button:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+/* ========== 安全提示 ========== */
+.security-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx 0 40rpx;
+  gap: 8rpx;
+}
+
+.security-icon {
+  width: 24rpx;
+  height: 24rpx;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2352c41a'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
+.security-text {
+  font-size: 22rpx;
+  color: #52c41a;
+}
+
+/* ========== iPhone X 底部安全区域适配 ========== */
+@supports (padding-bottom: constant(safe-area-inset-bottom)) {
+  .cashier-panel {
+    padding-bottom: constant(safe-area-inset-bottom);
+  }
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .cashier-panel {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+.cashier-popup {
+  touch-action: none;
+}

@@ -11,37 +11,40 @@
       {{item.name}}
     </view>
   </view>
+  
 
   <!-- 订单列表 -->
   <scroll-view class="order-list" scroll-y>
     <view 
       class="order-item"
-      a:for="{{filteredOrders}}"
+      a:for="{{orders}}"
       a:key="id"
     >
       <!-- 优化订单头部卡片样式 -->
       <view class="order-header">
         <view class="order-info">
-          <text class="order-id">订单号：{{item.id}}</text>
-          <text class="order-date">2024-01-15</text>
+          <text class="order-id">订单号：{{item.orderNo}}</text>
+          <text class="order-date">{{item.orderTime}}</text>
         </view>
         <text class="order-status {{item.status}}">
-          <block a:if="{{item.status === 'pending'}}">待支付</block>
-          <block a:elif="{{item.status === 'paid'}}">已支付</block>
-          <block a:elif="{{item.status === 'shipping'}}">派送中</block>
-          <block a:else>已完成</block>
+          <block a:if="{{item.status === 1}}">待支付</block>
+          <block a:elif="{{item.status === 2}}">待接单</block>
+          <block a:elif="{{item.status === 3}}">已接单</block>
+          <block a:elif="{{item.status === 4}}">派送中</block>
+          <block a:elif="{{item.status === 5}}">已完成</block>
+          <block a:else>已取消</block>
         </text>
       </view>
 
       <!-- 优化订单商品列表布局 -->
       <view class="order-items">
-        <view class="order-product" a:for="{{item.items}}" a:key="id">
+        <view class="order-product" a:for="{{item.orderDetails}}" a:key="id">
           <image src="{{item.image}}" class="product-img" mode="aspectFill" />
           <view class="product-details">
             <view class="product-name">{{item.name}}</view>
             <view class="product-meta">
-              <text class="product-quantity">x{{item.quantity}}</text>
-              <text class="product-price">¥{{item.price}}</text>
+              <text class="product-quantity">x{{item.number}}</text>
+              <text class="product-price">¥{{item.amount}}</text>
             </view>
           </view>
         </view>
@@ -50,23 +53,24 @@
       <!-- 优化订单底部信息和操作区 -->
       <view class="order-footer">
         <view class="order-summary">
+          <text class="order-total-label" a:if="{{item.orderType === 1}} ">含配送费3元</text>
           <text class="order-total-label">合计：</text>
-          <text class="order-total-price">¥{{item.totalPrice}}</text>
+          <text class="order-total-price">¥{{item.amount}}</text>
         </view>
         <view class="order-actions">
           <button 
             class="action-btn btn-pay" 
             size="mini"
-            a:if="{{item.status === 'pending'}}"
+            a:if="{{item.status === 1}}"
             onTap="continuePay"
-            data-id="{{item.id}}"
+            data-orderNo="{{item.orderNo}}"
           >
             继续支付
           </button>
           <button 
             class="action-btn btn-urge" 
             size="mini"
-            a:if="{{item.status === 'paid'}}"
+            a:if="{{item.status === 2}}"
             onTap="urgeOrder"
             data-id="{{item.id}}"
           >

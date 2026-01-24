@@ -1,21 +1,62 @@
 <view class="page">
-  <!-- 地址选择 -->
-  <view class="section address-section" onTap="selectAddress">
+  <!-- 堂食/外送选择 -->
+  <view class="order-type-section">
+    <view class="order-type-tabs">
+      <view
+        class="type-tab {{orderType === 0 ? 'active' : ''}}"
+        onTap="switchOrderType"
+        data-type="0"
+      >
+        <view class="type-icon dine-in-icon"></view>
+        <text class="type-text">堂食</text>
+      </view>
+      <view
+        class="type-tab {{orderType === 1 ? 'active' : ''}}"
+        onTap="switchOrderType"
+        data-type="1"
+      >
+        <view class="type-icon delivery-icon"></view>
+        <text class="type-text">外送</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 地址选择 - 仅外送时显示 -->
+  <view a:if="{{orderType === 1}}" class="section address-section" onTap="selectAddress">
     <view class="section-header">
       <text class="section-title">收货地址</text>
       <image src="/image/icon/arrowright.png" class="arrow" />
     </view>
-    <view class="address-content" a:if="{{selectedAddress}}">
+    <view a:if="{{selectedAddress}}" class="address-content">
       <view class="address-info">
-        <text class="name">{{selectedAddress.name}}</text>
+        <text class="name">{{selectedAddress.consignee}}</text>
         <text class="phone">{{selectedAddress.phone}}</text>
       </view>
       <view class="address-detail">
-        {{selectedAddress.province}}{{selectedAddress.city}}{{selectedAddress.district}}{{selectedAddress.detail}}
+        {{selectedAddress.province}}{{selectedAddress.city}}{{selectedAddress.district}}{{selectedAddress.detailAddress}}
       </view>
     </view>
-    <view class="address-placeholder" a:else>
+    <view a:else class="address-placeholder">
       <text>请选择收货地址</text>
+    </view>
+  </view>
+
+  <!-- 堂食桌号 - 仅堂食时显示 -->
+  <view a:if="{{orderType === 0}}" class="section table-section">
+    <view class="section-header">
+      <text class="section-title">桌号信息</text>
+    </view>
+    <view class="table-content">
+      <view class="table-input-wrap">
+        <text class="table-label">请输入桌号</text>
+        <input
+          class="table-input"
+          type="text"
+          placeholder="如：A01"
+          value="{{tableNumber}}"
+          onInput="onTableInput"
+        />
+      </view>
     </view>
   </view>
 
@@ -26,22 +67,22 @@
       <text class="section-sub">共 {{totalCount}} 件</text>
     </view>
     <scroll-view class="goods-list" scroll-y>
-      <view class="goods-item" a:for="{{cartItems}}" a:key="id">
+      <view a:for="{{cartItems}}" class="goods-item" a:key="id">
         <image src="{{item.image}}" class="goods-image" mode="aspectFill" />
         <view class="goods-info">
           <view class="goods-top">
             <text class="goods-name">{{item.name}}</text>
-            <text class="goods-price">¥{{item.price}}</text>
+            <text class="goods-price">¥{{item.amount}}</text>
           </view>
           <view class="goods-bottom">
-            <text class="goods-spec" a:if="{{item.sweet || item.temperature}}">
-              {{item.sweet}}{{item.sweet && item.temperature ? ' / ' : ''}}{{item.temperature}}
+            <text class="goods-spec">
+              {{item.number}}个
             </text>
-            <text class="goods-qty">x{{item.quantity}}</text>
+            <text class="goods-qty">x{{item.number}}</text>
           </view>
         </view>
       </view>
-      <view class="empty" a:if="{{cartItems.length === 0}}">
+      <view a:if="{{cartItems.length === 0}}" class="empty">
         购物车为空，请先去选择商品
       </view>
     </scroll-view>
@@ -53,7 +94,28 @@
       <text class="section-title">优惠券</text>
       <view class="coupon-right">
         <text class="coupon-text">
-          {{selectedCoupon ? ('已选择：满' + selectedCoupon.conditionText + '减' + selectedCoupon.amount + '元') : (availableCouponCount > 0 ? availableCouponCount + ' 张可用' : '暂无可用优惠券')}}
+          <!-- 已选择优惠券 -->
+          <block a:if="{{selectedCoupon}}">
+            <!-- 满减券 -->
+            <text a:if="{{selectedCoupon.type === 1}}">
+              已选择：满{{selectedCoupon.conditionAmount}}元减{{selectedCoupon.reduceAmount}}元
+            </text>
+
+            <!-- 折扣券 -->
+            <text a:if="{{selectedCoupon.type === 2}}">
+              已选择：满{{selectedCoupon.conditionAmount}}元享{{selectedCoupon.discount * 10}}折
+            </text>
+
+            <!-- 无门槛券 -->
+            <text a:if="{{selectedCoupon.type === 3}}">
+              已选择：立减{{selectedCoupon.reduceAmount}}元
+            </text>
+          </block>
+
+          <!-- 未选择优惠券 -->
+          <block a:else>
+            {{availableCount > 0 ? availableCount + ' 张可用' : '暂无可用优惠券'}}
+          </block>
         </text>
         <image src="/image/icon/arrowright.png" class="arrow" />
       </view>
@@ -69,11 +131,11 @@
       <text class="label">商品总额</text>
       <text class="value">¥{{goodsAmount}}</text>
     </view>
-    <view class="fee-row">
+    <view a:if="{{orderType === 1}}" class="fee-row">
       <text class="label">配送费</text>
       <text class="value">¥{{deliveryFee}}</text>
     </view>
-    <view class="fee-row discount" a:if="{{discountAmount > 0}}">
+    <view a:if="{{discountAmount > 0}}" class="fee-row discount">
       <text class="label">优惠券抵扣</text>
       <text class="value">-¥{{discountAmount}}</text>
     </view>
@@ -100,34 +162,63 @@
   </view>
 
   <!-- 优惠券选择弹窗 -->
-  <view class="coupon-popup" a:if="{{showCouponPopup}}">
+  <view a:if="{{showCouponPopup}}" class="coupon-popup">
     <view class="popup-mask" onTap="closeCouponPopup"></view>
     <view class="popup-panel">
       <view class="popup-header">
         <text class="popup-title">选择优惠券</text>
-        <text class="popup-close" onTap="closeCouponPopup">✕</text>
+        <text class="popup-close" onTap="closeCouponPopup">X</text>
       </view>
       <scroll-view class="popup-list" scroll-y>
         <view
-          class="popup-item"
-          a:for="{{availableCoupons}}"
+          a:for="{{availableList}}"
+          class="popup-item {{goodsAmount < item.conditionAmount ? 'disabled' : ''}}"
           a:key="id"
           data-id="{{item.id}}"
-          onTap="selectCoupon"
+          onTap="{{goodsAmount >= item.conditionAmount ? 'selectCoupon' : ''}}"
         >
-          <view class="item-left">
-            <text class="popup-amount">¥{{item.amount}}</text>
-            <text class="popup-condition">{{item.conditionText}}</text>
+
+          <view class="item-left {{goodsAmount < item.conditionAmount ? 'disabled' : ''}}">
+            <!-- 满减券 -->
+            <block a:if="{{item.type === 1}}">
+              <text class="popup-amount">¥{{item.reduceAmount}}</text>
+              <text class="popup-condition">满{{item.conditionAmount}}元可用</text>
+            </block>
+
+            <!-- 折扣券 -->
+            <block a:if="{{item.type === 2}}">
+              <text class="popup-amount">
+                {{item.discount * 10}}
+                <text class="discount-unit">折</text>
+              </text>
+              <text class="popup-condition">满{{item.conditionAmount}}元可用</text>
+            </block>
+
+            <!-- 无门槛券 -->
+            <block a:if="{{item.type === 3}}">
+              <text class="popup-amount">¥{{item.reduceAmount}}</text>
+              <text class="popup-condition">无门槛使用</text>
+            </block>
           </view>
           <view class="item-right">
-            <text class="popup-title-text">{{item.title}}</text>
-            <text class="popup-time">有效期：{{item.validTime}}</text>
-            <view class="check-icon {{pendingCouponId === item.id ? 'checked' : ''}}">
-              <view class="check-dot" a:if="{{pendingCouponId === item.id}}"></view>
+            <text class="popup-title-text">{{item.name}}</text>
+            <text class="popup-time">有效期：{{item.startTime}} 至 {{item.endTime}}</text>
+            <!-- 不可用提示 -->
+            <view
+              a:if="{{item.type !== 3 && goodsAmount < item.conditionAmount}}"
+              class="coupon-unavailable"
+            >
+              <text class="unavailable-text">
+                还差¥{{item.conditionAmount - goodsAmount}}可用
+              </text>
+            </view>
+            <!-- 可选择的勾选图标 -->
+            <view a:if="{{goodsAmount >= item.conditionAmount}}" class="check-icon {{pendingCouponId === item.id ? 'checked' : ''}}">
+              <view a:if="{{pendingCouponId === item.id}}" class="check-dot"></view>
             </view>
           </view>
         </view>
-        <view class="popup-empty" a:if="{{availableCoupons.length === 0}}">
+        <view a:if="{{availableList.length === 0}}" class="popup-empty">
           暂无可用优惠券
         </view>
       </scroll-view>
@@ -148,6 +239,16 @@
       提交订单
     </button>
   </view>
+
+  <!-- 支付宝收银台弹层 -->
+  <alipay-cashier
+    a:if="{{showCashier}}"
+    visible="{{showCashier}}"
+    amount="{{payAmount}}"
+    merchantName="糖水甜品店"
+    huabeiOwed="{{huabeiOwed}}"
+    defaultPayment="balance"
+    onPay="handlePay"
+    onCancelPay="handleCancelPay"
+  />
 </view>
-
-

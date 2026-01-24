@@ -1,0 +1,57 @@
+<view class="pay-success-page">
+  <!-- 顶部状态区域 -->
+  <view class="status-section">
+    <!-- 成功图标 -->
+    <view class="success-icon">
+      <view class="icon-circle">
+        <view class="checkmark"></view>
+      </view>
+    </view>
+
+    <!-- 支付成功文字 -->
+    <view class="status-text">支付成功</view>
+
+    <!-- 支付金额 -->
+    <view class="amount-wrapper">
+      <text class="currency">¥</text>
+      <text class="amount">{{amount}}</text>
+    </view>
+  </view>
+
+  <!-- 订单信息卡片 -->
+  <view class="order-card">
+    <view class="card-row">
+      <text class="label">商户名称</text>
+      <text class="value">{{shopName}}</text>
+    </view>
+    <view class="card-row" onLongTap="copyOrderNo">
+      <text class="label">订单编号</text>
+      <text class="value">{{orderNo}}</text>
+    </view>
+
+    <view class="card-row">
+      <text class="label">支付方式</text>
+      <text class="value">{{paymentMethod}}</text>
+    </view>
+    <view class="card-row">
+      <text class="label">支付时间</text>
+      <text class="value">{{payTime}}</text>
+    </view>
+  </view>
+
+  <!-- 底部操作区域 -->
+  <view class="action-section">
+    <view class="btn-primary" onTap="viewOrder">查看订单</view>
+    <view class="btn-secondary" onTap="backToHome">返回首页</view>
+  </view>
+
+  <view class="auto-back-text">
+    <text>{{countdown}} 秒后自动返回订单页</text>
+  </view>
+  
+  <!-- 底部安全提示 -->
+  <view class="security-footer">
+    <image class="shield-icon" src="/images/shield.png" mode="aspectFit" />
+    <text class="security-text">支付宝安全支付</text>
+  </view>
+</view>

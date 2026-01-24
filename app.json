@@ -13,7 +13,9 @@
     "pages/order/order",
     "pages/address/address",
     "pages/add-address/add-address",
-    "pages/favorites/favorites"
+    "pages/favorites/favorites",
+    "pages/pay-success/pay-success"
+
   ],
   "window": {
     "defaultTitle": "甜品店",
