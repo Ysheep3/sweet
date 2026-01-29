@@ -8,6 +8,10 @@ Page({
   onShow() {
     this.loadCart();
   },
+
+  onPullDownRefresh() {
+    this.loadCart();
+  },
   
   // 加载购物车
   loadCart() {
@@ -52,6 +56,9 @@ Page({
           content: res.data.msg,
           type: 'fail'
         })
+      },
+      complete: () => {
+        my.stopPullDownRefresh()
       }
     })
 
@@ -191,7 +198,7 @@ Page({
                   content: "删除成功",
                   type: "success"
                 })
-                
+
                 this.loadCart();
                 this.updateCartState(cartItems)
               } else {

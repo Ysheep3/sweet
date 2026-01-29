@@ -13,6 +13,10 @@ Page({
     this.loadFavorites()
   },
 
+  onPullDownRefresh() {
+    this.loadFavorites();
+  },
+
   loadUserInfo() {
     const app = getApp();
     if (app.globalData.userInfo) {
@@ -61,6 +65,9 @@ Page({
           content: err.message,
           duration: 1000
         });
+      },
+      complete: () => {
+        my.stopPullDownRefresh();
       }
     })
   },

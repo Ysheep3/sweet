@@ -3,7 +3,7 @@ Page({
     // 订单类型：0 堂食, 1 外送
     orderType: 1,
     orderNo: '',
-    tableNumber: '',
+    tableNo: '',
     selectedAddress: null,
     cartItems: [],
     totalCount: 0,
@@ -70,7 +70,7 @@ Page({
   // 桌号输入
   onTableInput(e) {
     this.setData({
-      tableNumber: e.detail.value
+      tableNo: e.detail.value
     });
   },
 
@@ -393,7 +393,7 @@ Page({
     const {
       orderType,
       selectedAddress,
-      tableNumber,
+      tableNo,
       cartItems,
       payAmount
     } = this.data;
@@ -415,7 +415,7 @@ Page({
       return;
     }
 
-    if (orderType === 0 && !tableNumber.trim()) {
+    if (orderType === 0 && !tableNo.trim()) {
       my.showToast({
         content: '请输入桌号',
         type: 'fail'
@@ -426,7 +426,7 @@ Page({
     // 组装订单数据
     const orderData = {
       orderType,
-      tableNumber: orderType === 0 ? tableNumber : '',
+      tableNo: orderType === 0 ? tableNo : '',
       addressId: orderType === 1 ? selectedAddress.id : null,
       cartItems: cartItems,
       amount: payAmount,

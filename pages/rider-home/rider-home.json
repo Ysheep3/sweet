@@ -1,5 +1,6 @@
 {
-  "defaultTitle": "骑手工作台"
+  "defaultTitle": "骑手工作台",
+  "pullRefresh": true
 }
 
 

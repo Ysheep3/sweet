@@ -40,26 +40,36 @@
         </view>
         <view class="role-info">
           <text class="role-name">我是骑手</text>
-          <text class="role-desc">需验证店铺下发手机号后登录</text>
+          <text class="role-desc">需验证店铺下发账号后登录</text>
         </view>
       </view>
 
       <view class="rider-form">
         <view class="input-wrapper">
-          <input 
-            type="number"
+          <input
+            type="text"
             maxlength="11"
-            placeholder="请输入店铺下发的手机号码"
-            value="{{riderPhone}}"
-            onInput="onRiderPhoneInput"
+            placeholder="请输入账号"
+            value="{{username}}"
+            onInput="onUsernameInput"
             class="phone-input"
             placeholder-class="input-placeholder"
           />
         </view>
-        <button 
-          class="btn-submit"
-          onTap="submitRiderLogin"
-        >
+
+        <view class="input-wrapper">
+          <input
+            type="text"
+            password="true"
+            placeholder="请输入密码"
+            value="{{password}}"
+            onInput="onPasswordInput"
+            class="phone-input"
+            placeholder-class="input-placeholder"
+          />
+        </view>
+
+        <button class="btn-submit" onTap="submitRiderLogin">
           验证并登录
         </button>
       </view>

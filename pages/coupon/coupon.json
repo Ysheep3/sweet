@@ -1,5 +1,5 @@
 {
-  "defaultTitle": "优惠券管理"
+  "defaultTitle": "优惠券管理",
+  "pullRefresh": true
 }
-
 

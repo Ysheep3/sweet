@@ -2,10 +2,9 @@
   <!-- 顶部骑手信息 -->
   <view class="rider-header">
     <view class="rider-info">
-      <image class="avatar" src="{{riderInfo.avatar || '/image/default-avatar.png'}}" mode="aspectFill" />
       <view class="info-text">
-        <text class="name">{{riderInfo.nickname || '骑手'}}</text>
-        <text class="sub">店铺配送员 · {{riderInfo.riderPhone || '未登记手机号'}}</text>
+        <text class="name">{{riderInfo.name || '骑手'}}</text>
+        <text class="sub">店铺配送员</text>
       </view>
     </view>
     <view class="today-stat">
@@ -17,68 +16,95 @@
 
   <!-- 顶部状态切换 -->
   <view class="tab-bar">
+    <!-- 待接单 -->
     <view
-      class="tab-item {{activeTab === 'pending' ? 'active' : ''}}"
-      data-key="pending"
+      class="tab-item {{activeTab === 3 ? 'active' : ''}}"
+      data-key="3"
       onTap="switchTab"
     >
       待接单
+      <view
+        class="tab-badge"
+        a:if="{{badge[3] > 0}}"
+      >
+        {{badge[3] > 99 ? '99+' : badge[3]}}
+      </view>
     </view>
+  
+    <!-- 配送中 -->
     <view
-      class="tab-item {{activeTab === 'delivering' ? 'active' : ''}}"
-      data-key="delivering"
+      class="tab-item {{activeTab === 4 ? 'active' : ''}}"
+      data-key="4"
       onTap="switchTab"
     >
       配送中
+      <view
+        class="tab-badge delivery"
+        a:if="{{badge[4] > 0}}"
+      >
+        {{badge[4] > 99 ? '99+' : badge[4]}}
+      </view>
     </view>
+  
+    <!-- 已完成 -->
     <view
-      class="tab-item {{activeTab === 'finished' ? 'active' : ''}}"
-      data-key="finished"
+      class="tab-item {{activeTab === 5 ? 'active' : ''}}"
+      data-key="5"
       onTap="switchTab"
     >
       已完成
+      <view
+        class="tab-badge finished"
+        a:if="{{badge[5] > 0}}"
+      >
+        {{badge[5] > 99 ? '99+' : badge[5]}}
+      </view>
     </view>
   </view>
+  
+  
 
   <!-- 订单列表 -->
   <scroll-view class="order-list" scroll-y>
-    <view
-      class="order-card"
-      a:for="{{filteredOrders}}"
-      a:key="id"
-    >
+    <view a:for="{{orders}}" class="order-card" a:key="id">
       <view class="order-top">
-        <text class="order-id">#{{item.id}}</text>
-        <text class="order-status">{{item.statusText}}</text>
+        <text class="order-id">#{{item.orderNo}}</text>
+        <text class="order-status">
+          {{ item.status === 3 ? '待接单'
+    : item.status === 4 ? '配送中'
+    : item.status === 5 ? '已完成'
+    : '未知状态'
+  }}
+        </text>
       </view>
       <view class="order-middle">
-        <text class="title">{{item.customerName}} · {{item.customerPhone}}</text>
-        <text class="addr">送达地址：{{item.customerAddress}}</text>
-        <text class="time">下单时间：{{item.createTime}}</text>
+        <text class="title">{{item.consignee}} · {{item.phone}}</text>
+        <text class="addr">送达地址：{{item.address}}</text>
+        <text class="time">下单时间：{{item.orderTime}}</text>
       </view>
       <view class="order-bottom">
         <text class="amount">¥{{item.amount}}</text>
         <view class="btn-group">
           <button
-            a:if="{{item.status === 'pending'}}"
+            a:if="{{item.status === 3}}"
             class="btn primary"
             size="mini"
             onTap="acceptOrder"
-            data-id="{{item.id}}"
+            data-orderNo="{{item.orderNo}}"
           >
             接单
           </button>
           <button
-            a:if="{{item.status === 'accepted' || item.status === 'delivering'}}"
+            a:if="{{item.status === 4}}"
             class="btn outline"
             size="mini"
             onTap="goDelivery"
-            data-id="{{item.id}}"
+            data-orderNo="{{item.orderNo}}"
           >
             去配送
           </button>
           <button
-            a:if="{{item.status === 'finished'}}"
+            a:if="{{item.status === 5}}"
             class="btn disabled"
             size="mini"
             disabled="true"
@@ -89,7 +115,7 @@
       </view>
     </view>
 
-    <view class="empty" a:if="{{filteredOrders.length === 0}}">
+    <view a:if="{{orders.length === 0}}" class="empty">
       暂无该状态的订单
     </view>
   </scroll-view>
@@ -101,5 +127,3 @@
     </button>
   </view>
 </view>
-
-

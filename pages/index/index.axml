@@ -28,6 +28,8 @@
     </scroll-view>
 
     <!-- 商品列表 -->
+    <view class="product-area">
+      
     <scroll-view class="product-list" scroll-y>
       <view
         a:for="{{products}}"
@@ -81,7 +83,19 @@
           </view>
         </view>
       </view>
+      
     </scroll-view>
+
+    <view a:if="{{ products.length === 0 }}" class="empty-box">
+      <image
+        src="/assets/image/empty-product.png"
+        class="empty-img"
+        mode="aspectFit"
+      />
+      <view class="empty-title">暂无商品</view>
+      <view class="empty-desc">店铺正在准备美味中，敬请期待～</view>
+    </view>
+    
   </view>
 
   <!-- ====== 多个 +1 飞球（重点） ====== -->

@@ -15,7 +15,7 @@
       <view class="address-card">
         <view class="address-header">
           <view class="address-info">
-            <text class="receiver-name">{{item.name}}</text>
+            <text class="receiver-name">{{item.consignee}}</text>
             <text class="receiver-phone">{{item.phone}}</text>
           </view>
           <view class="address-actions" catchtap="true">
@@ -34,7 +34,7 @@
         <view class="address-detail-text">
           <text class="location-icon">📍</text>
           <text class="detail-text">
-            {{item.province}}{{item.city}}{{item.district}}{{item.detail}}
+            {{item.province}}{{item.city}}{{item.district}}{{item.detailAddress}}
           </text>
         </view>
       </view>

@@ -53,6 +53,10 @@ Page({
     this.loadOrders()
   },
 
+  onPullDownRefresh(){
+    this.loadOrders();
+  },
+
   // 加载订单
   loadOrders() {
     const {
@@ -61,9 +65,9 @@ Page({
     } = this.data
     const statusList = tabs[activeTab].statusList
 
-    my.showLoading({
-      content: '加载中...'
-    })
+    // my.showLoading({
+    //   content: '加载中...'
+    // })
     const app = getApp()
     const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
 
@@ -97,7 +101,8 @@ Page({
         })
       },
       complete: () => {
-        my.hideLoading()
+        //my.hideLoading()
+        my.stopPullDownRefresh();
       },
     })
   },

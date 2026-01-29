@@ -125,6 +125,7 @@ Page({
       isFavorite
     } = this.data
 
+    console.log("product",product);
     const url = isFavorite ?
       app.globalData.apiBaseUrl + 'items/user/favorite/delete' :
       app.globalData.apiBaseUrl + 'items/user/favorite/add'
@@ -136,7 +137,8 @@ Page({
         productId: product.id,
         type: product.type,
         name: product.name,
-        price: product.price
+        price: product.price,
+        image: product.image,
       },
       headers: {
         authentication: app.globalData.authentication

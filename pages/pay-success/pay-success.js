@@ -79,6 +79,8 @@ Page({
 
   // 查看订单
   viewOrder() {
+    const app = getApp();
+    app.loadCart = true;
     my.redirectTo({
       url: '/pages/order/order'
     });

@@ -17,6 +17,10 @@ Page({
     this.loadAddresses();
   },
 
+  onPullDownRefresh() {
+    this.loadAddresses();
+  },
+
   // 加载地址列表
   loadAddresses() {
     const app = getApp()
@@ -43,6 +47,9 @@ Page({
           content: "加载地址列表失败"
         })
       },
+      complete: () => {
+        my.stopPullDownRefresh()
+      }
     })
   },
 

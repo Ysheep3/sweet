@@ -1,9 +1,6 @@
 <view class="page">
-  <view class="header-card">
-    <text class="title">骑手数据统计</text>
-    <text class="sub">仅统计当前店铺内配送数据</text>
-  </view>
 
+  <!-- 顶部统计卡 -->
   <view class="stat-grid">
     <view class="stat-card">
       <text class="label">今日完成</text>
@@ -22,37 +19,53 @@
     </view>
   </view>
 
-  <view class="section">
-    <text class="section-title">配送时长（示意）</text>
-    <view class="row">
-      <text class="label">平均送达时长</text>
-      <text class="value">{{avgDuration}} 分钟</text>
+  <view class="range-switch">
+    <text
+      class="range-btn {{rangeType === '7' ? 'active' : ''}}"
+      onTap="switchRange"
+      data-type="7"
+    >
+      近7天
+    </text>
+
+    <text
+      class="range-btn {{rangeType === '30' ? 'active' : ''}}"
+      onTap="switchRange"
+      data-type="30"
+    >
+      近30天
+    </text>
+  </view>
+
+  <!-- 折线图 -->
+  <view class="card">
+    <view class="card-title">订单完成趋势</view>
+    <f2 class="f2-chart" onInit="initOrderChart"/>
+  </view>
+
+  <view class="stat-grid">
+    <view class="stat-card">
+      <text class="label">今日收入</text>
+      <text class="value">{{todayIncome}}</text>
+      <text class="unit">元</text>
     </view>
-    <view class="row">
-      <text class="label">最快一单</text>
-      <text class="value">{{minDuration}} 分钟</text>
+    <view class="stat-card">
+      <text class="label">本周收入</text>
+      <text class="value">{{weekIncome}}</text>
+      <text class="unit">元</text>
     </view>
-    <view class="row">
-      <text class="label">最慢一单</text>
-      <text class="value">{{maxDuration}} 分钟</text>
+    <view class="stat-card">
+      <text class="label">总收入</text>
+      <text class="value">{{totalIncome}}</text>
+      <text class="unit">元</text>
     </view>
   </view>
 
-  <view class="section">
-    <text class="section-title">收入统计（示意）</text>
-    <view class="row">
-      <text class="label">今日预计收入</text>
-      <text class="value">¥{{todayIncome}}</text>
-    </view>
-    <view class="row">
-      <text class="label">本周预计收入</text>
-      <text class="value">¥{{weekIncome}}</text>
-    </view>
+  <!-- 柱状图 -->
+  <!-- 收入统计 -->
+  <view class="card">
+    <view class="card-title">收入趋势</view>
+    <f2 class="f2-chart" onInit="initIncomeChart" />
   </view>
 
-  <view class="tips">
-    以上数据为前端示例统计。实际项目中可由后端根据骑手账号统计更精确的配送数量、距离、时长与收入，并通过接口返回给本页面展示。
-  </view>
 </view>
-
-

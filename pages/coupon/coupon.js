@@ -24,6 +24,10 @@ Page({
   //   ]);
   // },
 
+  onPullDownRefresh() {
+    this.loadCoupons();
+  },
+
   async loadCoupons() {
     try {
       await Promise.all([
@@ -39,6 +43,8 @@ Page({
         content: '数据加载失败，请稍后重试',
         type: 'fail'
       });
+    } finally {
+      my.stopPullDownRefresh()
     }
   },
 

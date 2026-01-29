@@ -1,3 +1,11 @@
 {
-  "format": 2
+  "format": 2,
+  "compileOptions": {
+    "transpile": {
+      "extensions": [".js"],
+      "include": [
+        "node_modules/@antv/my-f2"
+      ]
+    }
+  }
 }

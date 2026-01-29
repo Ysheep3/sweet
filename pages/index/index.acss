@@ -10,9 +10,11 @@ page {
 
 .container {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--color-light);
-  position: relative;
 }
+
 
 .search-bar {
   display: flex;
@@ -52,16 +54,19 @@ page {
 }
 
 .content {
+  flex: 1;                 
   display: flex;
-  height: calc(100vh - 160rpx);
-  padding-bottom: 100rpx;
+  overflow: hidden;       
 }
+
 
 .category-sidebar {
   width: 180rpx;
+  height: 100%;        /* ⭐ */
   background-color: white;
   border-right: 1rpx solid var(--color-border);
 }
+
 
 .category-item {
   padding: 30rpx 20rpx;
@@ -81,10 +86,12 @@ page {
 }
 
 .product-list {
-  flex: 1;
+  height: 100%;        /* ⭐ 关键 */
   padding: 20rpx;
-  background-color: var(--color-light);
+  box-sizing: border-box;
+  overflow-y: auto;
 }
+
 
 .product-item {
   background-color: white;
@@ -460,4 +467,39 @@ page {
   margin: 0 16rpx;
   font-size: 28rpx;
   color: #333;
+}
+
+/* 右侧商品区 */
+.product-area {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  overflow: hidden;    /* ⭐ 禁止外层滚 */
+}
+
+/* 空态：只在商品区居中 */
+.empty-box {
+  position: absolute;
+  top: 45%;              /* 视觉居中，比 50% 好看 */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: #999;
+}
+
+.empty-img {
+  width: 200rpx;
+  height: 200rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.empty-desc {
+  font-size: 26rpx;
+  color: #999;
 }

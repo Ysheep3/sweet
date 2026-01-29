@@ -3,15 +3,15 @@
   <view class="order-card">
     <view class="row">
       <text class="label">订单号</text>
-      <text class="value">#{{order.id}}</text>
+      <text class="value">#{{order.orderNo}}</text>
     </view>
     <view class="row">
       <text class="label">顾客</text>
-      <text class="value">{{order.customerName}} · {{order.customerPhone}}</text>
+      <text class="value">{{order.consignee}} · {{order.phone}}</text>
     </view>
     <view class="row">
       <text class="label">送达地址</text>
-      <text class="value addr">{{order.customerAddress}}</text>
+      <text class="value addr">{{order.address}}</text>
     </view>
     <view class="row">
       <text class="label">订单金额</text>
@@ -44,6 +44,7 @@
     <button
       class="btn primary"
       type="primary"
+      data-orderNo="{{order.orderNo}}"
       onTap="markDelivered"
     >
       标记已送达

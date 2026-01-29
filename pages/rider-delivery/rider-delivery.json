@@ -1,5 +1,6 @@
 {
-  "defaultTitle": "骑手配送"
+  "defaultTitle": "骑手配送",
+  "pullRefresh": true
 }
 
 
