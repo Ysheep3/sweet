@@ -21,12 +21,111 @@ Page({
 
   /* ================== F2 初始化 ================== */
 
+  // 模拟器性能更好
+  // initOrderChart(F2, config) {
+  //   const chart = new F2.Chart({
+  //     ...config,
+  //     animate: false // 是否动画，后面动态控制
+  //   })
+
+  //   chart.source([], {
+  //     date: {
+  //       type: 'cat',
+  //       range: [0, 1]
+  //     },
+  //     value: {
+  //       min: 0
+  //     }
+  //   })
+
+  //   // ⚠️ 这里只注册 line，不决定 smooth
+  //   this.orderLine = chart.line()
+  //     .position('date*value')
+
+  //   chart.render()
+
+  //   this.orderChart = chart
+  //   return chart
+  // },
+
+  // 模拟器性能更好
+  // initIncomeChart(F2, config) {
+  //   const chart = new F2.Chart({
+  //     ...config,
+  //     animate: false
+  //   })
+
+  //   chart.source([], {
+  //     date: {
+  //       type: 'cat'
+  //     },
+  //     value: {
+  //       min: 0
+  //     }
+  //   })
+
+  //   chart.interval()
+  //     .position('date*value')
+  //     .color('#5B8FF9')
+  //     .style({
+  //       radius: [4, 4, 0, 0]
+  //     })
+
+  //   chart.render()
+
+  //   this.incomeChart = chart
+  //   return chart
+  // },
+
+
+  // 成功版
+  // initOrderChart(F2, config) {
+  //   const chart = new F2.Chart({
+  //     ...config,
+  //     animate: true
+  //   })
+  //   chart.source([], {
+  //     date: {
+  //       type: 'cat',
+  //       range: [0, 1]
+  //     },
+  //     value: {
+  //       min: 0
+  //     }
+  //   })
+  //   chart.line().position('date*value').shape('smooth')
+  //   chart.render()
+  //   this.orderChart = chart
+  //   return chart
+  // },
+
+  // initIncomeChart(F2, config) {
+  //   const chart = new F2.Chart({
+  //     ...config,
+  //     animate: true
+  //   }) 
+  //   chart.source([], {
+  //     date: {
+  //       type: 'cat'
+  //     },
+  //     value: {
+  //       min: 0
+  //     }
+  //   }) 
+  //   chart.interval().position('date*value').color('#5B8FF9').style({
+  //     radius: [4, 4, 0, 0]
+  //   }) 
+  //   chart.render() 
+  //   this.incomeChart = chart
+  //   return chart
+  // },
+
   initOrderChart(F2, config) {
     const chart = new F2.Chart({
       ...config,
-      animate: false // 是否动画，后面动态控制
+      animate: true
     })
-  
+
     chart.source([], {
       date: {
         type: 'cat',
@@ -36,24 +135,34 @@ Page({
         min: 0
       }
     })
-  
-    // ⚠️ 这里只注册 line，不决定 smooth
-    this.orderLine = chart.line()
+
+    chart.line()
       .position('date*value')
-  
+      .shape('smooth')
+
+    // ✅ 只加 tooltip，不加 interaction
+    chart.tooltip({
+      showCrosshairs: true,
+      onShow(ev) {
+        const item = ev.items && ev.items[0]
+        if (!item) return
+
+        item.name = `${item.origin.date} · 完成订单`
+        item.value = item.value + ' 单'
+      }
+    })
+
     chart.render()
-  
     this.orderChart = chart
     return chart
   },
-  
 
   initIncomeChart(F2, config) {
     const chart = new F2.Chart({
       ...config,
-      animate: false
+      animate: true
     })
-  
+
     chart.source([], {
       date: {
         type: 'cat'
@@ -62,76 +171,105 @@ Page({
         min: 0
       }
     })
-  
+
     chart.interval()
       .position('date*value')
       .color('#5B8FF9')
       .style({
         radius: [4, 4, 0, 0]
       })
-  
+
+    chart.tooltip({
+      showItemMarker: false,
+      onShow(ev) {
+        const item = ev.items && ev.items[0]
+        if (!item) return
+
+        item.name = `${item.origin.date} · 收入`
+        item.value = '¥ ' + item.value
+      }
+    })
+
     chart.render()
-  
     this.incomeChart = chart
     return chart
   },
-  
-  
+
+
 
   /* ================== 更新图表数据 ================== */
 
   updateCharts() {
     if (!this.orderChart || !this.incomeChart) return
-  
+
     const is30Days = this.data.rangeType === '30'
-  
+
     /* ========= 1️⃣ 控制动画 ========= */
-    this.orderChart.animate(!is30Days)
-    this.incomeChart.animate(!is30Days)
-  
+    // this.orderChart.animate(!is30Days)
+    // this.incomeChart.animate(!is30Days)
+
     /* ========= 2️⃣ 控制 X 轴刻度数量 ========= */
     this.orderChart.scale('date', {
-      tickCount: is30Days ? 6 : this.data.labels.length
+      tickCount: is30Days ? 7 : this.data.labels.length
     })
-  
+
     this.incomeChart.scale('date', {
-      tickCount: is30Days ? 6 : this.data.labels.length
+      tickCount: is30Days ? 7 : this.data.labels.length
     })
-  
+
     /* ========= 3️⃣ 控制折线是否 smooth ========= */
-    this.orderLine.shape(is30Days ? 'line' : 'smooth')
-  
+    //this.orderLine.shape(is30Days ? 'line' : 'smooth')
+
     /* ========= 4️⃣ 组装数据 ========= */
     const labels = this.data.labels || []
-  
+
     const orderData = labels.map((d, i) => ({
       date: d,
       value: Number(this.data.orderCounts[i] || 0)
     }))
-  
+
     const incomeData = labels.map((d, i) => ({
       date: d,
       value: Number(this.data.incomes[i] || 0)
     }))
-  
+
     /* ========= 5️⃣ 更新数据（F2 自动过渡） ========= */
     this.orderChart.changeData(orderData)
     this.incomeChart.changeData(incomeData)
   },
-  
-  
-  
+
+  // updateCharts() {
+  //   if (!this.orderChart || !this.incomeChart) return
+
+  //   const labels = this.data.labels || []
+
+  //   const orderData = labels.map((d, i) => ({
+  //     date: d,
+  //     value: Number(this.data.orderCounts[i] || 0)
+  //   }))
+
+  //   const incomeData = labels.map((d, i) => ({
+  //     date: d,
+  //     value: Number(this.data.incomes[i] || 0)
+  //   }))
+
+  //   this.orderChart.changeData(orderData)
+  //   this.incomeChart.changeData(incomeData)
+  // },
+
+
+
   switchRange(e) {
     const type = e.currentTarget.dataset.type
     if (type === this.data.rangeType) return
-  
+
     this.setData({
       rangeType: type
     }, () => {
       this.loadTrendData()
     })
   },
-  
+
 
   /* ================== 接口 ================== */
 
