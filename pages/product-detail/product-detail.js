@@ -19,7 +19,7 @@ Page({
   },
 
   onLoad(query) {
-    const id = Number(query.id || 0)
+    const id = query.id || 0
     const type = Number(query.type || 1)
 
     if (!id) {

@@ -139,9 +139,34 @@ Page({
   // 催单
   urgeOrder(e) {
     const orderId = e.currentTarget.dataset.id
-    my.showToast({
-      content: "催单请求已发送",
-      type: "success",
+    const app = getApp()
+    const apiBaseUrl = (app.globalData && app.globalData.apiBaseUrl) || "http://localhost:8080/"
+    
+    my.request({
+      url: `${apiBaseUrl}order/user/reminder/${orderId}`,
+      method: 'GET',
+      headers: {
+        authentication: app.globalData.authentication
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          my.showToast({
+            content: "催单请求已发送",
+            type: "success",
+          })
+        } else {
+          my.showToast({
+            type: 'fail',
+            content: res.data.msg
+          })
+        }
+      },
+      fail: () => {
+        my.showToast({
+          type: 'fail',
+          content: '网络异常'
+        })
+      }
     })
   },
 })

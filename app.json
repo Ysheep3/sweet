@@ -20,7 +20,7 @@
   "window": {
     "defaultTitle": "甜品店",
     "backgroundColor": "#F5F5F5",
-    "pullRefresh": true,
+    "pullRefresh": false,
     "allowsBounceVertical": "YES"
   },  
   "tabBar": {
