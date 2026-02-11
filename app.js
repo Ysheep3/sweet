@@ -4,6 +4,30 @@ App({
     apiBaseUrl: 'http://172.20.10.2:8080/' // TODO: 替换为实际的后端API地址
   },
 
+  onLaunch(options) {
+    let tableNo = null;
+
+    if (options.query && options.query.tableNo) {
+      tableNo = options.query.tableNo;
+    }
+
+    if (!tableNo) {
+      const tableList = ['A01', 'A02', 'A03', 'A04'];
+      const randomIndex = Math.floor(Math.random() * tableList.length);
+      tableNo = tableList[randomIndex];
+
+      my.setStorageSync({
+        key: 'tableNo',
+        data: tableNo
+      });
+
+      // 🔥 同时记录来源
+      my.setStorageSync({
+        key: 'tableNoFromScan',
+        data: true
+      });
+    }
+  },
 
   // 更新底部导航栏购物车徽章和图标（保留你原来的实现）
   updateTabBarBadge() {

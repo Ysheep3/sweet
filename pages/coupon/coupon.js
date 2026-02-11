@@ -242,13 +242,14 @@ Page({
       success: (res) => {
         if (res.data && res.data.code === 1) {
           setTimeout(() => {
-            this.loadUserCoupons(0)
+            this.loadClaimableCoupons(), // 刷新可领取
+              this.loadUserCoupons(0)
           }, 300)
           my.showToast({
             content: '领取成功',
             type: 'success'
           });
-          
+
         } else {
           my.showToast({
             type: 'fail',

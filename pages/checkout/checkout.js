@@ -26,19 +26,47 @@ Page({
   },
 
   onLoad(options = {}) {
-    const { orderNo } = options;   // ✅ 在函数最外层解构
-  
+    const {
+      orderNo
+    } = options;
+
     if (orderNo) {
-      this.setData({ orderNo });
+      this.setData({
+        orderNo
+      });
     }
-  
-    // 统一入口：有 orderNo → 查订单；没有 → 查购物车
-    this.loadCheckoutData(orderNo);
-  
-    this.loadCoupons();
-    this.loadDefaultAddress();
+
+    // ====== ① 先处理堂食 / 外送 ======
+    let isDineIn = false;
+
+    const fromScan = my.getStorageSync({
+      key: 'tableNoFromScan'
+    });
+    if (fromScan && fromScan.data === true) {
+      const tableRes = my.getStorageSync({
+        key: 'tableNo'
+      });
+      if (tableRes && tableRes.data) {
+        isDineIn = true;
+        this.setData({
+          tableNo: tableRes.data,
+          orderType: 0
+        });
+      }
+
+      my.removeStorageSync({
+        key: 'tableNoFromScan'
+      });
+    }
+
+    // ====== ② 等 orderType 生效后再加载数据 ======
+    this.setData({}, () => {
+      this.loadCheckoutData(orderNo);
+      this.loadCoupons();
+      this.loadDefaultAddress();
+    });
   },
-  
+
 
   onShow() {
     const selectedRes = my.getStorageSync({
@@ -60,11 +88,27 @@ Page({
   // 切换订单类型
   switchOrderType(e) {
     const type = Number(e.currentTarget.dataset.type);
+
+    if (type === 0) {
+      const tableRes = my.getStorageSync({
+        key: 'tableNo'
+      });
+      if (tableRes && tableRes.data) {
+        this.setData({
+          orderType: 0,
+          tableNo: tableRes.data
+        }, () => {
+          this.calculatePrice(); // ✅ 等堂食生效后再算
+        });
+        return;
+      }
+    }
+
     this.setData({
       orderType: type
+    }, () => {
+      this.calculatePrice(); // ✅ 外送同样走回调
     });
-    // 重新计算价格（堂食无配送费）
-    this.calculatePrice();
   },
 
   // 桌号输入
